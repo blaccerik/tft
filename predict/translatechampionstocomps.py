@@ -98,4 +98,4 @@ class Translate:
 if __name__ == '__main__':
     t = Translate("C:/Users/theerik/PycharmProjects/tft/data/champions.json",
                   "C:/Users/theerik/PycharmProjects/tft/data/data.csv")
-    t.analyze_main(shuffle=2, equal=False)
+    t.analyze_main(shuffle=15, equal=False)

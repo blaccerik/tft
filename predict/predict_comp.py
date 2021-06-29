@@ -9,12 +9,12 @@ training_data = np.load("training_comp.npy", allow_pickle=True)
 class Net(nn.Module):
     def __init__(self):
         super(Net, self).__init__()
-        line21 = 32
+        line21 = 128
         self.linear21 = nn.Linear(in_features=7, out_features=line21)
         self.linear22 = nn.Linear(in_features=line21, out_features=21)
 
-        line31 = 32
-        line32 = 128
+        line31 = 256
+        line32 = 256
         self.linear31 = nn.Linear(in_features=7, out_features=line31)
         self.linear32 = nn.Linear(in_features=line31, out_features=line32)
         self.linear33 = nn.Linear(in_features=line32, out_features=21)
