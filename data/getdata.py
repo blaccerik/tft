@@ -177,11 +177,14 @@ class GetData:
         current = 0
         total = 0
         for match in matches:
-            # print(match)
+
+            # read matches only from certain date
+            # so it doesnt waste time on read old matches
             nr = int(match[5:])
             # 21
             if nr < 5332230239:  # 06-22
                 continue
+
             a = self.read_match(match)
             if a is False:
                 print("added:", current, "analysed:", total)
@@ -200,8 +203,14 @@ if __name__ == '__main__':
              "C:/Users/theerik/PycharmProjects/tft/data/puuids.txt",
              "C:/Users/theerik/PycharmProjects/tft/data/matches.txt",
              "C:/Users/theerik/PycharmProjects/tft/data/data.csv")
+    # get match ids from puuids
     # d.get_matches_from_puuids()
+
+    # get data from match ids
+    d.get_data_and_puuids_from_match()
+
+    # these 2 functions are used to get data from riot's database
+    # just choose one and let it run as it takes a while for data to be read
 
     # d.read_match("EUW1_5321353332")
     #
-    d.get_data_and_puuids_from_match()

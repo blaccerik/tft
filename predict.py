@@ -1,17 +1,9 @@
-import csv
-import json
 import time
 
 import torch.nn as nn
 import torch.nn.functional as F
 import torch
 import torch.optim as optim
-import torchvision
-import torchvision.transforms as transforms
-from matplotlib.pyplot import imshow
-from torch.autograd import Variable
-from torch.utils.data import Dataset, DataLoader
-import pretrainedmodels
 import datetime
 import numpy as np
 
@@ -27,12 +19,10 @@ test
 ...
 """
 
-import os
 #from keras.preprocessing.image import load_img
-from PIL import Image
 #import cv2
 #from tqdm import tqdm
-from edit_data import EditData
+from predict.edit_data import EditData
 
 def module2():
     rebuild_data = True

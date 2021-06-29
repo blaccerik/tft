@@ -1,16 +1,11 @@
 import mss
 import mss.tools
-from PIL import Image
 import numpy as np
-import pyautogui
 import cv2
 import time
 from Templates import Templates
-from ChampionList import ChampionList
 from Control import Control
-import pytesseract
-from pytesseract import Output
-from Champions import Champions
+from interact.Champions import Champions
 
 class Screen:
     def __init__(self):
