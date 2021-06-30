@@ -13,19 +13,32 @@ class Net(nn.Module):
         self.linear21 = nn.Linear(in_features=7, out_features=line21)
         self.linear22 = nn.Linear(in_features=line21, out_features=21)
 
-        line31 = 256
-        line32 = 256
+        line31 = 400
+        line32 = 200
         self.linear31 = nn.Linear(in_features=7, out_features=line31)
         self.linear32 = nn.Linear(in_features=line31, out_features=line32)
-        self.linear33 = nn.Linear(in_features=line32, out_features=21)
+        self.linear33 = nn.Linear(in_features=line32, out_features=19)
+
+        line41 = 20
+        line42 = 32
+        line43 = 16
+        self.linear41 = nn.Linear(in_features=7, out_features=line41)
+        self.linear42 = nn.Linear(in_features=line41, out_features=line42)
+        self.linear43 = nn.Linear(in_features=line42, out_features=line43)
+        self.linear44 = nn.Linear(in_features=line43, out_features=19)
 
     def forward(self, x):
         # x = F.relu(self.linear21(x))
         # x = self.linear22(x)
 
-        x = F.relu(self.linear31(x))
-        x = F.relu(self.linear32(x))
-        x = self.linear33(x)
+        # x = F.relu(self.linear31(x))
+        # x = F.relu(self.linear32(x))
+        # x = self.linear33(x)
+
+        x = F.relu(self.linear41(x))
+        x = F.relu(self.linear42(x))
+        x = F.relu(self.linear43(x))
+        x = self.linear44(x)
 
         # # apply sigmoid activation to get all the outputs between 0 and 1
         # x = torch.sigmoid(x)
@@ -57,7 +70,7 @@ test_y = y[-val_size:]
 
 # main loop
 batch_size = 64
-epochs = 3
+epochs = 5
 net.train()
 for epoch in range(epochs):
     for i in range(0, len(train_X), batch_size):
@@ -98,21 +111,21 @@ with torch.no_grad():
             correct += 1
         total += 1
 
-    a = [6,6,6,6,6,6,6]
+    a = [7,7,7,7,7,7,7]
     b = torch.FloatTensor(a)
     net_out = net(b.view(-1, 7))
     print(net_out)
     predicted_class = torch.argmax(net_out)
     print(predicted_class)
 
-    a = [2,2,2,2,2,2,2]
+    a = [1,1,1,1,1,1,1]
     b = torch.FloatTensor(a)
     net_out = net(b.view(-1, 7))
     print(net_out)
     predicted_class = torch.argmax(net_out)
     print(predicted_class)
 
-    a = [0,0,6,6,6,0,0]
+    a = [1,1,1,7,7,7,0]
     b = torch.FloatTensor(a)
     net_out = net(b.view(-1, 7))
     print(net_out)

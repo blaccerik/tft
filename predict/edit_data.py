@@ -5,9 +5,7 @@ from datetime import datetime
 import pickle
 from static_data import Static
 
-
 class EditData():
-
     def __init__(self, link_to_json, link_to_csv):
         s = Static()
         s.read(link_to_json)
@@ -36,7 +34,7 @@ class EditData():
             if size > self.size_of_champion_queue:
                 return None
             for champ_data in json_data["units"]:
-                champ = champ_data["id"]
+                champ = champ_data["id"].lower()
                 id = self.champ_labels[champ]
                 if id in temp_list:
                     return None

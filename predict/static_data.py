@@ -3,64 +3,64 @@ import json
 
 class Static:
     champ_labels = {"None": 0,
-                        "TFT5_Aatrox": 1,
-                        "TFT5_Aphelios": 2,
-                        "TFT5_Ashe": 3,
-                        "TFT5_Brand": 4,
-                        "TFT5_Darius": 5,
-                        "TFT5_Diana": 6,
-                        "TFT5_Draven": 7,
-                        "TFT5_Garen": 8,
-                        "TFT5_Gragas": 9,
-                        "TFT5_Hecarim": 10,
-                        "TFT5_Heimerdinger": 11,
-                        "TFT5_Ivern": 12,
-                        "TFT5_Jax": 13,
-                        "TFT5_Kalista": 14,
-                        "TFT5_Karma": 15,
-                        "TFT5_Katarina": 16,
-                        "TFT5_Kayle": 17,
-                        "TFT5_Kennen": 18,
-                        "TFT5_Khazix": 19,
-                        "TFT5_Kindred": 20,
-                        "TFT5_Kled": 21,
-                        "TFT5_LeBlanc": 22,
-                        "TFT5_LeeSin": 23,
-                        "TFT5_Leona": 24,
-                        "TFT5_Lissandra": 25,
-                        "TFT5_Lulu": 26,
-                        "TFT5_Lux": 27,
-                        "TFT5_Mordekaiser": 28,
-                        "TFT5_Morgana": 29,
-                        "TFT5_Nautilus": 30,
-                        "TFT5_Nidalee": 31,
-                        "TFT5_Nocturne": 32,
-                        "TFT5_Nunu": 33,
-                        "TFT5_Pantheon": 34,
-                        "TFT5_Poppy": 35,
-                        "TFT5_Rell": 36,
-                        "TFT5_Riven": 37,
-                        "TFT5_Ryze": 38,
-                        "TFT5_Sejuani": 39,
-                        "TFT5_Sett": 40,
-                        "TFT5_Soraka": 41,
-                        "TFT5_Syndra": 42,
-                        "TFT5_Taric": 43,
-                        "TFT5_Teemo": 44,
-                        "TFT5_Thresh": 45,
-                        "TFT5_Trundle": 46,
-                        "TFT5_Udyr": 47,
-                        "TFT5_Varus": 48,
-                        "TFT5_Vayne": 49,
-                        "TFT5_Velkoz": 50,
-                        "TFT5_Viego": 51,
-                        "TFT5_Viktor": 52,
-                        "TFT5_Vladimir": 53,
-                        "TFT5_Volibear": 54,
-                        "TFT5_Warwick": 55,
-                        "TFT5_Yasuo": 56,
-                        "TFT5_Ziggs": 57,
-                        "TFT5_Zyra": 58}
+                    "tft5_aatrox": 1,
+                    "tft5_aphelios": 2,
+                    "tft5_ashe": 3,
+                    "tft5_brand": 4,
+                    "tft5_darius": 5,
+                    "tft5_diana": 6,
+                    "tft5_draven": 7,
+                    "tft5_garen": 8,
+                    "tft5_gragas": 9,
+                    "tft5_hecarim": 10,
+                    "tft5_heimerdinger": 11,
+                    "tft5_ivern": 12,
+                    "tft5_jax": 13,
+                    "tft5_kalista": 14,
+                    "tft5_karma": 15,
+                    "tft5_katarina": 16,
+                    "tft5_kayle": 17,
+                    "tft5_kennen": 18,
+                    "tft5_khazix": 19,
+                    "tft5_kindred": 20,
+                    "tft5_kled": 21,
+                    "tft5_leblanc": 22,
+                    "tft5_leesin": 23,
+                    "tft5_leona": 24,
+                    "tft5_lissandra": 25,
+                    "tft5_lulu": 26,
+                    "tft5_lux": 27,
+                    "tft5_mordekaiser": 28,
+                    "tft5_morgana": 29,
+                    "tft5_nautilus": 30,
+                    "tft5_nidalee": 31,
+                    "tft5_nocturne": 32,
+                    "tft5_nunu": 33,
+                    "tft5_pantheon": 34,
+                    "tft5_poppy": 35,
+                    "tft5_rell": 36,
+                    "tft5_riven": 37,
+                    "tft5_ryze": 38,
+                    "tft5_sejuani": 39,
+                    "tft5_sett": 40,
+                    "tft5_soraka": 41,
+                    "tft5_syndra": 42,
+                    "tft5_taric": 43,
+                    "tft5_teemo": 44,
+                    "tft5_thresh": 45,
+                    "tft5_trundle": 46,
+                    "tft5_udyr": 47,
+                    "tft5_varus": 48,
+                    "tft5_vayne": 49,
+                    "tft5_velkoz": 50,
+                    "tft5_viego": 51,
+                    "tft5_viktor": 52,
+                    "tft5_vladimir": 53,
+                    "tft5_volibear": 54,
+                    "tft5_warwick": 55,
+                    "tft5_yasuo": 56,
+                    "tft5_ziggs": 57,
+                    "tft5_zyra": 58}
 
     # here are some known comps
     comp0 = ([0], [0])  # null
@@ -69,7 +69,9 @@ class Static:
     comp3 = ([10, 30, 45, 16, 7, 36, 38, 51], [49, 48, 29, 6, 28])  # forg iron
     comp4 = ([56, 46, 23, 29, 34, 6, 28, 20], [14, 39, 26, 5, 2])  # night dragon
     comp5 = ([30, 45, 27, 36, 43, 8, 17, 20], [1, 24, 42, 37, 3, 38])  # redee kngiht
-    comp6 = ([24, 30, 42, 48, 27, 36, 50, 20], [49, 8, 17, 43, 1, 12])  # redeem ranger
+    comp6 = {"final": [24, 30, 42, 48, 27, 36, 50, 20],
+             "early": [49, 8, 17, 43, 1, 12],
+             "mid": []}  # redeem ranger
     comp7 = ([42, 12, 15, 36, 8, 11, 44, 54], [1, 24, 45, 37, 9, 41])  # reve invo
 
     comp8 = ([55, 4, 40, 33, 12, 38, 11, 54], [14, 58, 20, 3])  # abo brawl
@@ -87,29 +89,30 @@ class Static:
     comp14 = ([1, 37, 56, 6, 7, 28, 43, 17], [14, 39, 23, 29])  # dragon legion
     comp16 = ([47, 40, 3, 58, 12, 11, 20, 54], [55, 57, 43, 36, 50, 44])  # drgonic care
 
-    comps = {0: comp0,
-             1: comp1,
-             2: comp2,
-             3: comp3,
-             4: comp4,
-             5: comp5,
-             6: comp6,
-             7: comp7,
-             8: comp8,
-             9: comp9,
-             10: comp10,
-             11: comp11,
-             12: comp12,
-             13: comp13,
-             14: comp14,
-             15: comp15,
-             16: comp16,
-             17: comp17,
-             18: comp18,
-             19: comp19,
-             20: comp20}
+    # comps = {0: comp0,
+    #          1: comp1,
+    #          2: comp2,
+    #          3: comp3,
+    #          4: comp4,
+    #          5: comp5,
+    #          6: comp6,
+    #          7: comp7,
+    #          8: comp8,
+    #          9: comp9,
+    #          10: comp10,
+    #          11: comp11,
+    #          12: comp12,
+    #          13: comp13,
+    #          14: comp14,
+    #          15: comp15,
+    #          16: comp16,
+    #          17: comp17,
+    #          18: comp18,
+    #          19: comp19,
+    #          20: comp20}
 
-
+    comps = {0: {"final": tuple(),"early": tuple(),"mid": tuple()},
+             1: comp6}  # null
     champion_to_traits = {}
     trait_to_champions = {}
 
@@ -126,6 +129,36 @@ class Static:
                     else:
                         self.trait_to_champions[i] = [name]
 
+    def read_comps(self, link):
+        with open(link) as json_file:
+            data = json.load(json_file)
+            for p in data:
+                lista = self.translate_name_to_id(p["final"])
+                listb = self.translate_name_to_id(p["early"])
+                listc = self.translate_name_to_id(p["mid"])
+                for i in lista:
+                    if i in listb:
+                        listb.remove(i)
+                    if i in listc:
+                        listc.remove(i)
+                for i in listb:
+                    if i in listc:
+                        listc.remove(i)
+                key = max(self.comps)
+                self.comps[key + 1] = {"final": tuple(lista),
+                                       "early": tuple(listb),
+                                       "mid": tuple(listc)}
+
+    def translate_name_to_id(self, input):
+        lista = []
+        for i in input:
+            if "-" in i:
+                i = i.replace("-", "")
+            name = f"tft5_{i.lower()}"
+            id = self.champ_labels[name]
+            lista.append(id)
+        return lista
+
     def number_to_names(self, lista):
         final_list = []
         for i in lista:
@@ -134,19 +167,21 @@ class Static:
                     final_list.append(n)
         print(final_list)
 
-
     def start(self):
         """
         used to create dict in the console which can be used to create the labels
         :return:
         """
-        with open('../pictures/set5/champions.json') as json_file:
+        with open('C:/Users/theerik/PycharmProjects/tft/data/champions.json') as json_file:
             data = json.load(json_file)
             for p in range(len(data)):
-                a = data[p]["championId"]
+                a = data[p]["championId"].lower()
                 print(f'"{a}": {p + 1},')
 
 
 if __name__ == '__main__':
     s = Static()
-    s.number_to_names((53, 21, 40, 29, 33, 34, 16, 0, 0, 0))
+    # s.start()
+    s.read("C:/Users/theerik/PycharmProjects/tft/data/champions.json")
+    s.read_comps("C:/Users/theerik/PycharmProjects/tft/data/comps.json")
+    # s.number_to_names((53, 21, 40, 29, 33, 34, 16, 0, 0, 0))
