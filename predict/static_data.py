@@ -2,140 +2,62 @@ import json
 
 
 class Static:
-    champ_labels = {"None": 0,
-                    "tft5_aatrox": 1,
-                    "tft5_aphelios": 2,
-                    "tft5_ashe": 3,
-                    "tft5_brand": 4,
-                    "tft5_darius": 5,
-                    "tft5_diana": 6,
-                    "tft5_draven": 7,
-                    "tft5_garen": 8,
-                    "tft5_gragas": 9,
-                    "tft5_hecarim": 10,
-                    "tft5_heimerdinger": 11,
-                    "tft5_ivern": 12,
-                    "tft5_jax": 13,
-                    "tft5_kalista": 14,
-                    "tft5_karma": 15,
-                    "tft5_katarina": 16,
-                    "tft5_kayle": 17,
-                    "tft5_kennen": 18,
-                    "tft5_khazix": 19,
-                    "tft5_kindred": 20,
-                    "tft5_kled": 21,
-                    "tft5_leblanc": 22,
-                    "tft5_leesin": 23,
-                    "tft5_leona": 24,
-                    "tft5_lissandra": 25,
-                    "tft5_lulu": 26,
-                    "tft5_lux": 27,
-                    "tft5_mordekaiser": 28,
-                    "tft5_morgana": 29,
-                    "tft5_nautilus": 30,
-                    "tft5_nidalee": 31,
-                    "tft5_nocturne": 32,
-                    "tft5_nunu": 33,
-                    "tft5_pantheon": 34,
-                    "tft5_poppy": 35,
-                    "tft5_rell": 36,
-                    "tft5_riven": 37,
-                    "tft5_ryze": 38,
-                    "tft5_sejuani": 39,
-                    "tft5_sett": 40,
-                    "tft5_soraka": 41,
-                    "tft5_syndra": 42,
-                    "tft5_taric": 43,
-                    "tft5_teemo": 44,
-                    "tft5_thresh": 45,
-                    "tft5_trundle": 46,
-                    "tft5_udyr": 47,
-                    "tft5_varus": 48,
-                    "tft5_vayne": 49,
-                    "tft5_velkoz": 50,
-                    "tft5_viego": 51,
-                    "tft5_viktor": 52,
-                    "tft5_vladimir": 53,
-                    "tft5_volibear": 54,
-                    "tft5_warwick": 55,
-                    "tft5_yasuo": 56,
-                    "tft5_ziggs": 57,
-                    "tft5_zyra": 58}
 
-    # here are some known comps
-    comp0 = ([0], [0])  # null
-    comp1 = ([14, 4, 33, 12, 38, 58, 20, 54], [40, 20, 11, 44])  # abo reve
-    comp2 = ([9, 41, 31, 37, 12, 15, 8, 54], [1, 24, 42, 45, 37, 44])  # dawn invo
-    comp3 = ([10, 30, 45, 16, 7, 36, 38, 51], [49, 48, 29, 6, 28])  # forg iron
-    comp4 = ([56, 46, 23, 29, 34, 6, 28, 20], [14, 39, 26, 5, 2])  # night dragon
-    comp5 = ([30, 45, 27, 36, 43, 8, 17, 20], [1, 24, 42, 37, 3, 38])  # redee kngiht
-    comp6 = {"final": [24, 30, 42, 48, 27, 36, 50, 20],
-             "early": [49, 8, 17, 43, 1, 12],
-             "mid": []}  # redeem ranger
-    comp7 = ([42, 12, 15, 36, 8, 11, 44, 54], [1, 24, 45, 37, 9, 41])  # reve invo
-
-    comp8 = ([55, 4, 40, 33, 12, 38, 11, 54], [14, 58, 20, 3])  # abo brawl
-    comp9 = ([52, 4, 27, 33, 58, 36, 38, 50], [14, 40, 30, 26, 20])   # abo spell
-    comp10 = ([25, 22, 29, 32, 6, 12, 51, 54], [53, 19, 16])  # coven assa
-    comp11 = ([25, 53, 22, 29, 41, 12, 15, 54], [32, 20, 11])  # coven rene
-    comp12 = ([18, 46, 23, 34, 13, 6, 28, 51], [9, 47, 55, 31, 36, 5])  # drgn skr
-    comp17 = ([4, 10, 30, 39, 45, 53, 36, 21], [0])  # forg caval
-    comp15 = ([21, 35, 18, 26, 12, 11, 44, 54], [57, 20])  # hell reve
-    comp18 = ([30, 29, 2, 6, 28, 36, 5, 20], [14, 39, 23, 56, 27, 38])  # night ranger
-    comp20 = ([30, 58, 12, 15, 36, 43, 50, 17], [1, 24, 42, 45, 37, 54, 27, 38, 8])  # redem spell
-    comp19 = ([19, 22, 16, 32, 6, 12, 51, 54], [25, 53, 29])  # reve assa
-
-    comp13 = ([49, 10, 45, 52, 36, 38, 20, 51], [30, 48, 16])  # forg rang
-    comp14 = ([1, 37, 56, 6, 7, 28, 43, 17], [14, 39, 23, 29])  # dragon legion
-    comp16 = ([47, 40, 3, 58, 12, 11, 20, 54], [55, 57, 43, 36, 50, 44])  # drgonic care
-
-    # comps = {0: comp0,
-    #          1: comp1,
-    #          2: comp2,
-    #          3: comp3,
-    #          4: comp4,
-    #          5: comp5,
-    #          6: comp6,
-    #          7: comp7,
-    #          8: comp8,
-    #          9: comp9,
-    #          10: comp10,
-    #          11: comp11,
-    #          12: comp12,
-    #          13: comp13,
-    #          14: comp14,
-    #          15: comp15,
-    #          16: comp16,
-    #          17: comp17,
-    #          18: comp18,
-    #          19: comp19,
-    #          20: comp20}
-
-    comps = {0: {"final": tuple(),"early": tuple(),"mid": tuple()},
-             1: comp6}  # null
+    comp0 = {"name": "null"}  # null
+    comps = {0: comp0}
     champion_to_traits = {}
     trait_to_champions = {}
+    trait_to_sets = {}
+    champ_to_id = {"none": 0}
+    id_to_champ = {0: "none"}
+    id_to_item = {}
+    item_to_id = {}
 
     def read(self, link):
         with open(link) as json_file:
             data = json.load(json_file)
-            for p in data:
-                name = p['championId']
-                traits = p['traits']
+            for nr in range(len(data)):
+                p = data[nr]
+                name = p['championId'].lower()
+                self.champ_to_id[name] = nr + 1
+                self.id_to_champ[nr + 1] = name
+
+                traits = list(map(lambda x: x.lower(), p['traits']))
                 self.champion_to_traits[name] = traits
                 for i in traits:
+                    i = i.lower()
                     if i in self.trait_to_champions:
                         self.trait_to_champions[i].append(name)
                     else:
                         self.trait_to_champions[i] = [name]
 
+    def read_items(self, link):
+        with open(link) as json_file:
+            data = json.load(json_file)
+            for p in data:
+                name = p["name"].lower()
+                id = p["id"]
+                self.item_to_id[name] = id
+                self.id_to_item[id] = name
+
+    def read_traits(self, link):
+        with open(link) as json_file:
+            data = json.load(json_file)
+            for p in data:
+                name = p["key"].lower()
+                sets = p["sets"]
+                lista = []
+                for i in sets:
+                    lista.append(i["min"])
+                self.trait_to_sets[name] = lista
+
     def read_comps(self, link):
         with open(link) as json_file:
             data = json.load(json_file)
             for p in data:
-                lista = self.translate_name_to_id(p["final"])
-                listb = self.translate_name_to_id(p["early"])
-                listc = self.translate_name_to_id(p["mid"])
+                lista = self.translate_name_to_id(p[0])
+                listb = self.translate_name_to_id(p[1])
+                listc = self.translate_name_to_id(p[2])
                 for i in lista:
                     if i in listb:
                         listb.remove(i)
@@ -145,9 +67,83 @@ class Static:
                     if i in listc:
                         listc.remove(i)
                 key = max(self.comps)
-                self.comps[key + 1] = {"final": tuple(lista),
-                                       "early": tuple(listb),
-                                       "mid": tuple(listc)}
+                self.comps[key + 1] = (tuple(lista), tuple(listb), tuple(listc))
+
+    def read_comps_tftactics(self, link, only_s=True):
+        with open(link) as json_file:
+            data = json.load(json_file)
+            for row in data:
+                name = row["name"]
+                if only_s:
+                    tier = name[0].lower()
+                    if tier != "s":
+                        continue
+
+                lista = row["final"]
+                items = row["item order"]
+                options = row["options"]
+                early = row["early"]
+
+                # figure out the items
+                needed_items = set()
+                for item in items:
+                    a = self.item_to_id[item]
+                    # check if a is item or part
+                    # if in the future they add more parts then
+                    # change number here
+                    if (a >= 10 and a < 100) or (a >= 1010):
+                        needed_items.add(a)
+                needed_items = list(needed_items)
+                needed_parts = []
+                for item in needed_items:
+                    item_to_parts(item, needed_parts)
+
+                # figure out extra items and needed champs
+                extra_items = []
+                extra_parts = []
+                needed_champs = []
+                for obj in lista:
+                    # print(self.champ_to_id)
+                    champ = ("tft5_" + obj).replace(" ", "")
+                    if champ in self.champ_to_id:
+                        needed_champs.append(self.champ_to_id[champ])
+                    else:
+                        # might change if i want items to overlap
+                        a = self.item_to_id[obj]
+                        # if a not in needed_items:
+                        extra_items.append(a)
+                        item_to_parts(a, extra_parts)
+
+                for item in needed_items:
+                    extra_items.remove(item)
+                for part in needed_parts:
+                    extra_parts.remove(part)
+
+                # figure out rest of the champs
+                early_champs = []
+                extra_champs = []
+                # might need to change if i want champs to overlap
+                for champ in early:
+                    a = self.champ_to_id[("tft5_" + champ).replace(" ", "")]
+                    if a not in needed_champs:
+                        early_champs.append(a)
+                for champ in options:
+                    a = self.champ_to_id[("tft5_" + champ).replace(" ", "")]
+                    if a not in needed_champs and a not in early_champs:
+                        extra_champs.append(a)
+
+                key = max(self.comps) + 1
+                self.comps[key] = {
+                    "name": name,
+                    "needed_champs": needed_champs,
+                    "early_champs": early_champs,
+                    "extra_champs": extra_champs,
+                    "needed_items": needed_items,
+                    "needed_parts": needed_parts,
+                    "extra_items": extra_items,
+                    "extra_parts": extra_parts,
+                }
+        # print(self.comps)
 
     def translate_name_to_id(self, input):
         lista = []
@@ -155,15 +151,15 @@ class Static:
             if "-" in i:
                 i = i.replace("-", "")
             name = f"tft5_{i.lower()}"
-            id = self.champ_labels[name]
+            id = self.champ_to_id[name]
             lista.append(id)
         return lista
 
     def number_to_names(self, lista):
         final_list = []
         for i in lista:
-            for n in self.champ_labels:
-                if self.champ_labels[n] == i:
+            for n in self.champ_to_id:
+                if self.champ_to_id[n] == i:
                     final_list.append(n)
         print(final_list)
 
@@ -178,10 +174,35 @@ class Static:
                 a = data[p]["championId"].lower()
                 print(f'"{a}": {p + 1},')
 
+def item_to_parts(item, needed_parts):
+    # for normal items
+    if item < 100:
+        for d in str(item):
+            needed_parts.append(int(d))
+    # for shadow items
+    else:
+        normal = item % 1000
+        parts = [int(d) for d in str(normal)]
+        for d in parts:
+            needed_parts.append(d)
+        for index in range(len(parts)):
+            item = parts[index] + 1000
+            needed_parts.append(item)
+
 
 if __name__ == '__main__':
     s = Static()
     # s.start()
     s.read("C:/Users/theerik/PycharmProjects/tft/data/champions.json")
-    s.read_comps("C:/Users/theerik/PycharmProjects/tft/data/comps.json")
-    # s.number_to_names((53, 21, 40, 29, 33, 34, 16, 0, 0, 0))
+    s.read_items("C:/Users/theerik/PycharmProjects/tft/data/items.json")
+    s.read_traits("C:/Users/theerik/PycharmProjects/tft/data/traits.json")
+    s.read_comps_tftactics("C:/Users/theerik/PycharmProjects/tft/data/comps_tactics.json")
+    # print(s.champ_to_id)
+    # print(s.id_to_champ)
+    # print(s.champion_to_traits)
+    # print(s.trait_to_champions)
+    # s.read_comps("C:/Users/theerik/PycharmProjects/tft/data/comps.json")
+    # s.number_to_names(
+    #     (19, 9, 41, 31, 12, 8, 0, 0, 0, 0)
+    # )
+    # print(s.translate_name_to_id(["leona", "warwick"]))

@@ -1,5 +1,6 @@
 import csv
 import json
+import random
 import time
 from datetime import datetime
 import pickle
@@ -11,7 +12,7 @@ class EditData():
         s.read(link_to_json)
         self.champion_to_traits = s.champion_to_traits
         self.trait_to_champions = s.trait_to_champions
-        self.champ_labels = s.champ_labels
+        self.champ_labels = s.champ_to_id
         self.link_to_csv = link_to_csv
         self.size_of_champion_queue = 10
         # path to csv which has all the data about the matches
@@ -81,6 +82,7 @@ class EditData():
             # np.random.shuffle(self.training_data)
             # np.save("training_data.npy", self.training_data)
             print(len(training_data))
+        random.shuffle(training_data)
         with open('edited_data.pkl', 'wb') as f:
             pickle.dump(training_data, f)
 
@@ -89,6 +91,6 @@ if __name__ == '__main__':
     e = EditData("C:/Users/theerik/PycharmProjects/tft/data/champions.json",
                   "C:/Users/theerik/PycharmProjects/tft/data/data.csv")
 
-    date = "23/06/2021"
+    date = "27/06/2021"
     date_number = int(time.mktime(datetime.strptime(date, "%d/%m/%Y").timetuple())) * 1000
     e.make_data(game_time=date_number)
