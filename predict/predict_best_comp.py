@@ -6,7 +6,7 @@ class Predict:
         s.read("C:/Users/theerik/PycharmProjects/tft/data/champions.json")
         s.read_items("C:/Users/theerik/PycharmProjects/tft/data/items.json")
         s.read_traits("C:/Users/theerik/PycharmProjects/tft/data/traits.json")
-        s.read_comps_tftactics("C:/Users/theerik/PycharmProjects/tft/data/comps_tactics.json")
+        s.read_comps_tftactics("C:/Users/theerik/PycharmProjects/tft/data/comps_tactics.json", only_s=False)
         self.s = s
         self.comps = s.comps
         self.champion_to_traits = s.champion_to_traits
@@ -116,7 +116,7 @@ class Predict:
                      0.5 * (low_p / (2 * size_i))
 
             score = score1 + 0.75 * score2
-            top5.append((round(score, 3), key, high, med, low, size,
+            top5.append(("{:1.3f}".format((round(score, 3))), key, high, med, low, size,
                          high_i, high_p, low_i, low_p, size_i))
             top5.sort(key=lambda x: x[0], reverse=True)
             if len(top5) > 5:
@@ -129,17 +129,23 @@ class Predict:
 
 if __name__ == '__main__':
     p = Predict()
-    # p.s.number_to_names(
-    #     (19, 9, 55, 24)
-    # )
+    p.s.number_to_names(
+        (1, 9, 55, 45)
+    )
+    p.s.number_to_items(
+        (1009, 9, 3, 5)
+    )
+    # print(p.s.champ_to_id["tft5_gragas"])
+    # print(p.s.champ_to_id["tft5_warwick"])
+    # print(p.s.champ_to_id["tft5_thresh"])
     # print(p.s.id_to_item[99])
     # print(p.s.id_to_item[9])
     # print(p.s.id_to_item[1])
     top5 = p.predict_main(
-        (19, 9, 55, 24, 14, 1),
-        (14, 1,2,3,4)
+        (1, 9, 55, 45),
+        (1009, 9, 3, 5)
     )
-    print("  scr key hg md lw sz hi hp li lp si")
+    print("   scr   key hg md lw sz hi hp li lp si")
     print(top5[0])
     print(top5[1])
     print(top5[2])

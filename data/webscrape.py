@@ -77,10 +77,10 @@ class WebScraper:
 
         driver = webdriver.Firefox()
         driver.get(link)
-        WebDriverWait(driver, 15)
+        WebDriverWait(driver, 20)
         driver.find_element_by_class_name("cmpboxbtns").find_element_by_id("cmpwelcomebtnyes").click()
         # WebDriverWait(driver, 5)
-        time.sleep(4)
+        time.sleep(10)
         a = driver.find_elements_by_class_name("team-portrait")
         for b in a:
             c = b.find_element_by_class_name("team-more")

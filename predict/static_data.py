@@ -113,9 +113,12 @@ class Static:
                         # if a not in needed_items:
                         extra_items.append(a)
                         item_to_parts(a, extra_parts)
-
+                # print(max(self.comps) + 1)
+                # print(needed_items)
+                # print(extra_items)
                 for item in needed_items:
-                    extra_items.remove(item)
+                    if item in extra_items:
+                        extra_items.remove(item)
                 for part in needed_parts:
                     extra_parts.remove(part)
 
@@ -161,6 +164,12 @@ class Static:
             for n in self.champ_to_id:
                 if self.champ_to_id[n] == i:
                     final_list.append(n)
+        print(final_list)
+
+    def number_to_items(self, lista):
+        final_list = []
+        for i in lista:
+            final_list.append(self.id_to_item[i])
         print(final_list)
 
     def start(self):
