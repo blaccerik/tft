@@ -91,7 +91,7 @@ class Predict:
 
     def find_level(self, nr, id):
         """
-        Does not actually find the level but the score of how many copies of that champion you have
+        Does not actually find the level but the "score" of the levels
         lvl 1 = 0.5
         lvl 2 = 1
         lvl 3 = 2
