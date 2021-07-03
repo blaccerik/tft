@@ -95,7 +95,6 @@ class Predict:
         lvl 1 = 0.5
         lvl 2 = 1
         lvl 3 = 2
-        todo add tier system -> tier 0-1 (grey, green) give x amount of score etc
         :return:
         """
         tier = self.id_to_tier[id]
@@ -115,31 +114,67 @@ class Predict:
         else:
             return x * 2
 
-    def predict_main(self, champions, items):
+    def get_comp_tier(self, name):
+        letter = name[0].lower
+        if letter == "s":
+            return 1.3
+        elif letter == "a":
+            return 1
+        else:
+            return 0.7
+
+    def find_size(self, count, champions):
+        size = 0
+        for champ in count:
+            nr = champions[champ]
+            size += self.find_level(nr, champ)
+        return size
+
+    def predict_main(self, champions_in_game: dict,
+                     items: list,
+                     size_of_game_queue: int,
+                     champions_on_bench: dict,
+                     champs_in_store: list):
         """
-        :param champions: champion ids [1,5,1,1,4,0]
+
+        :param champions_in_game: champion ids [1,5,1,1,4,0]
         :param items: item ids
+        :param size_of_game_queue:
+        :param champions_on_bench:
+        :param champs_in_store:
         :return:
         """
         top5 = []
-        if 0 in champions:
-            del champions[0]
+        if 0 in champions_in_game:
+            del champions_in_game[0]
+        if 0 in champions_on_bench:
+            del champions_on_bench[0]
+
+        # join total champions owned into 1 dict
+        champions = dict(champions_in_game)
+        for i in champions_on_bench:
+            if i in champions:
+                champions[i] += champions_on_bench[i]
+            else:
+                champions[i] = champions_on_bench[i]
+        for i in champs_in_store:
+            if i in champions:
+                champions[i] += 1
+            else:
+                champions[i] = 1
+
         size = len(champions)
         size_i = len(items)
         for key in self.comps:
             comp_dict = self.comps[key]
+            name = comp_dict["name"]
+            tier = self.get_comp_tier(name)
 
-            tier = comp_dict["name"][0].lower()
-
-            if tier == "s":
-                tier = 1.3
-            elif tier == "a":
-                tier = 1
-            else:
-                tier = 0.7
-
+            # if null comp
             if len(comp_dict) == 1:
                 continue
+
+
             core_count, start_count, extra_count, \
             core_i, core_p, core_parts_size, \
             extra_i, extra_p, extra_parts_size = self.get_same_items_and_champs(champions, items, comp_dict)
@@ -151,18 +186,9 @@ class Predict:
             # calculate the final score for sort
             # change here
 
-            core_size = 0
-            start_size = 0
-            extra_size = 0
-            for champ in core_count:
-                nr = champions[champ]
-                core_size += self.find_level(nr, champ)
-            for champ in start_count:
-                nr = champions[champ]
-                start_size += self.find_level(nr, champ)
-            for champ in extra_count:
-                nr = champions[champ]
-                extra_size += self.find_level(nr, champ)
+            core_size = self.find_size(core_count, champions)
+            start_size = self.find_size(start_count, champions)
+            extra_size = self.find_size(extra_count, champions)
 
             score1 = core_size / size + 0.8 * start_size / size + 0.7 * extra_size / size
 
@@ -189,27 +215,31 @@ class Predict:
                 del top5[5]
 
             # info
-            print(key, comp_dict["name"])
+            print(key, name)
         return top5
 
 
 if __name__ == '__main__':
     p = Predict()
     p.s.number_to_names(
-        (26, 8, 44, 23, 48)
+        (26, 8, 44, 24, 48, 1)
     )
     p.s.number_to_items(
         (1009, 9, 3, 5)
     )
-    print(p.s.champ_to_id["tft5_teemo"])
+    # print(p.s.champ_to_id["tft5_teemo"])
     # print(p.s.champ_to_id["tft5_warwick"])
     # print(p.s.champ_to_id["tft5_thresh"])
     # print(p.s.id_to_item[99])
     # print(p.s.id_to_item[9])
     # print(p.s.id_to_item[1])
     top5 = p.predict_main(
-        {26: 9, 8:1, 44: 3, 23: 5, 48: 1},
-        (1009, 9, 3, 5, 2, 5, 1005, 1034)
+        {26: 2, 44: 1, 24: 1, 48: 1, 1: 1},
+        [],
+        # (1009, 9, 3, 5, 2, 5, 1005, 1034),
+        5,
+        {44: 1},
+        [44, 24, 1, 26, 27]
     )
     print("   scr key cs ss es  s ci cp ei ep si")
     print(top5[0])
