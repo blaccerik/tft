@@ -12,6 +12,7 @@ class Static:
     id_to_champ = {0: "none"}
     id_to_item = {}
     item_to_id = {}
+    id_to_tier = {}
 
     def read(self, link):
         with open(link) as json_file:
@@ -19,6 +20,8 @@ class Static:
             for nr in range(len(data)):
                 p = data[nr]
                 name = p['championId'].lower()
+                tier = p["cost"] - 1
+                self.id_to_tier[nr + 1] = tier
                 self.champ_to_id[name] = nr + 1
                 self.id_to_champ[nr + 1] = name
 
@@ -91,7 +94,7 @@ class Static:
                     # check if a is item or part
                     # if in the future they add more parts then
                     # change number here
-                    if (a >= 10 and a < 100) or (a >= 1010):
+                    if a % 1000 > 10:
                         needed_items.add(a)
                 needed_items = list(needed_items)
                 needed_parts = []
