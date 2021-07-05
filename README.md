@@ -13,4 +13,4 @@ But if you do need that 1st place then by predicting you can win 26.8% of the ga
 As you can see not much difference but atleast is something   
 But to be fair this was calculated using only champions and not items
 
-User interface coming soon  
+Current interface only supports your champions and items and you have to enter them manually, but this is temporary as I am currently working on image recognition to get data from live game
