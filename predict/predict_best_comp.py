@@ -60,6 +60,17 @@ class Predict:
         extra_p = 0
         # first check items and then parts so
         # it would not double count
+
+
+        # print("----")
+        # print("items", items)
+        # print("ci",core_items)
+        # print("cp",core_parts)
+        # print("ei",extra_items)
+        # print("ep",extra_parts)
+        # print("-----")
+        # if comes error that could not remove then something is wrong with data, look out for shadow/normal items
+        # sometimes it says that 2 normal itemas are priority but it shows that champions need to have 1 shadow item for example
         for item in items:
             # item
             if item % 1000 > 10:
@@ -136,7 +147,8 @@ class Predict:
                      items: list,
                      size_of_game_queue: int,
                      champions_on_bench: dict,
-                     champs_in_store: list):
+                     champs_in_store: list,
+                     many=5):
         """
 
         :param champions_in_game: champion ids [1,5,1,1,4,0]
@@ -218,11 +230,11 @@ class Predict:
             top5.append((round(score, 3), key, core_size, start_size, extra_size, size,
                          core_i, core_p, extra_i, extra_p, size_i))
             top5.sort(key=lambda x: x[0], reverse=True)
-            if len(top5) > 5:
-                del top5[5]
+            if len(top5) > many:
+                del top5[many]
 
             # info
-            print(key, name)
+            # print(key, name)
         return top5
 
 def same_length(top5):

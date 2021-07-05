@@ -189,18 +189,18 @@ class Static:
 
 def item_to_parts(item, needed_parts):
     # for normal items
+
     if item < 100:
         for d in str(item):
             needed_parts.append(int(d))
     # for shadow items
     else:
         normal = item % 1000
-        parts = [int(d) for d in str(normal)]
-        for d in parts:
-            needed_parts.append(d)
-        for index in range(len(parts)):
-            item = parts[index] + 1000
-            needed_parts.append(item)
+        # parts = [int(d) for d in str(normal)]
+        for d in str(normal):
+            nr = int(d)
+            needed_parts.append(nr)
+            needed_parts.append(nr + 1000)
 
 
 if __name__ == '__main__':

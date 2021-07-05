@@ -71,8 +71,6 @@ class App:
         frame3 = tk.Frame(self.canvas2)
         self.canvas2.create_window((0,0), window=frame3, anchor='nw')
 
-
-
         self.item_list = []
         self.item_list_values = {}
         # self.item_list_ids = []
@@ -82,7 +80,7 @@ class App:
             # info.grid(column=0, row=i)
             item_id = some_list[i]
             name = self.p.s.id_to_item[item_id]
-            label = tk.Label(frame3, text=f"{name}: {0}")
+            label = tk.Label(frame3, text=f"{item_id} {name}: {0}")
             label.grid(column=0, row=i)
             # label.pack()
             label.bind("<Button-1>", self.left_click_item)
@@ -119,9 +117,10 @@ class App:
         a = self.item_list.index(event.widget)
         b = self.item_list_values[a]
         value = b["value"]
+        item_id = b["id"]
         if value != 0:
             self.item_list_values[a]["value"] = value - 1
-            self.item_list[a]["text"] = f"{b['name']}: {value - 1}"
+            self.item_list[a]["text"] = f"{item_id} {b['name']}: {value - 1}"
         # a = self.label["text"]
         # self.label['text'] = a - 1
 
@@ -130,9 +129,10 @@ class App:
         a = self.item_list.index(event.widget)
         b = self.item_list_values[a]
         value = b["value"]
+        item_id = b["id"]
         if value != 9:
             self.item_list_values[a]["value"] = value + 1
-            self.item_list[a]["text"] = f"{b['name']}: {value + 1}"
+            self.item_list[a]["text"] = f"{item_id} {b['name']}: {value + 1}"
 
     def res(self):
         lista = []
@@ -151,6 +151,8 @@ class App:
                             5,
                             {},
                             [])
+        for i in self.p.s.comps:
+            print(i, self.p.s.comps[i]["name"])
         same_length(top5)
 
 

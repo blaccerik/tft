@@ -23,6 +23,8 @@ class EditData():
 
         for summoner_data in row:
             temp_list = []
+            temp_dict = {}
+            items_list = []
             summoner_data = summoner_data.replace("'", '"')
             json_data = json.loads(summoner_data)
             size = len(json_data["units"])
@@ -36,13 +38,24 @@ class EditData():
                 return None
             for champ_data in json_data["units"]:
                 champ = champ_data["id"].lower()
+                items = champ_data["items"]
+                for item in items:
+                    items_list.append(item)
+                level = champ_data["level"]
                 id = self.champ_labels[champ]
-                if id in temp_list:
+                if id in temp_dict:
                     return None
-                temp_list.append(id)
+                if level == 1:
+                    number = 1
+                elif level == 2:
+                    number = 3
+                else:
+                    number = 9
+                # temp_list.append((id, level))
+                temp_dict[id] = number
             while len(temp_list) < self.size_of_champion_queue:
                 temp_list.append(0)
-            final_data.append(tuple(temp_list))
+            final_data.append((temp_dict,tuple(items_list)))
         return tuple(final_data)
 
     def make_data(self, game_time=0):
@@ -79,10 +92,12 @@ class EditData():
                     value = self.add_champs(row)
                     if type(value) == tuple:
                         training_data.append(value)
+                        # break
             # np.random.shuffle(self.training_data)
             # np.save("training_data.npy", self.training_data)
             print(len(training_data))
-        random.shuffle(training_data)
+        # random.shuffle(training_data)
+        # print(training_data)
         with open('edited_data.pkl', 'wb') as f:
             pickle.dump(training_data, f)
 

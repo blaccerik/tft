@@ -4,63 +4,37 @@ import random
 
 import numpy as np
 from static_data import Static
+from predict_best_comp import Predict, same_length
 
 class Translate:
     def __init__(self, link_to_json, link_to_csv, link_to_comps):
-        s = Static()
-        s.read(link_to_json)
+
+        self.p = Predict()
+
+        # s = Static()
+        # s.read(link_to_json)
         # s.read_comps(link_to_comps)
-        self.s = s
-        self.comps = s.comps
-        self.champion_to_traits = s.champion_to_traits
-        self.trait_to_champions = s.trait_to_champions
-        self.link_to_csv = link_to_csv
+        # self.s = s
+        # self.comps = s.comps
+        # self.champion_to_traits = s.champion_to_traits
+        # self.trait_to_champions = s.trait_to_champions
+        # self.link_to_csv = link_to_csv
 
-    def make_match(self, tuplea):
-        top3 = []
-        seta = set(tuplea)
-        if 0 in seta:
-            seta.remove(0)
-        size = len(seta)
-        if size > 8:
-            size = 8
-        elif size == 0:
-            size = 200
-
-        for key in self.comps:
-            # print(key)
-            comp_tuple = self.comps[key]
-            # print(comp_tuple)
-            final = comp_tuple[0]
-            early = comp_tuple[1]
-            mid = comp_tuple[2]
-            # print(mid)
-            # comp_primary = comp_tuple[0]
-            # comp_sec = comp_tuple[1]
-            high = len(seta.intersection(final))
-            med = len(seta.intersection(mid))
-            low = len(seta.intersection(early))
-            # score = (high + low) / size
-            # score = (0.7 * high + 0.2 * med + 0.1 * low)
-            sizem = len(mid)
-            if sizem == 0:
-                sizem = 1
-            sizes = len(early)
-            if sizes == 0:
-                sizes = 1
-
-            score = (high * 3 + med + low) / (3 * size)
-
-            top3.append((score, key, high, med, low, size))
-            top3.sort(key=lambda x: x[0], reverse=True)
-            if len(top3) > 5:
-                del top3[5]
-        # # print(top3)
-        # self.s.number_to_names(seta)
-        # print("---")
-        # self.s.number_to_names(self.comps[top3[0][1]]["final"])
-        # self.s.number_to_names(self.comps[top3[1][1]]["final"])
-        return top3
+    def make_match(self, one_player_set):
+        champions = one_player_set[0]
+        items = one_player_set[1]
+        # print(champions)
+        # print(items)
+        top5 = self.p.predict_main(champions,
+                                   items,
+                                   len(champions),
+                                   {},
+                                   [],
+                                   many=1)
+        # same_length(top5)
+        if top5[0][1] < 0.6:
+            return None
+        return top5[0]
 
 
     def analyze_main(self, shuffle=0, equal=False):
@@ -78,20 +52,15 @@ class Translate:
             some_list = []
             for i in range(len(one_sett)):
                 one_player_set = one_sett[i]
-                print(one_player_set)
-                top3 = self.make_match(one_player_set)
-                print(top3[0])
-                print(top3[1])
-                print(top3[2])
-                if top3[0][0] < 0.3:
-                    # return
-                    if i != 0:
-                        some_list.append(0)
-                        continue
-                    else:
+                # print(one_player_set)
+                top = self.make_match(one_player_set)
+                if top is None:
+                    if winner is None:
                         break
-                comp = top3[0][1]
+                    else:
+                        continue
 
+                comp = top[1]
                 if winner is None:
                     winner = comp
                 else:
@@ -105,12 +74,12 @@ class Translate:
                     count[winner] += 1
                 else:
                     count[winner] = 1
-                array = np.eye(len(self.comps))[winner]
+                array = np.eye(len(self.p.s.comps))[winner]
                 final_list.append((np.array(some_list), array))
                 for times in range(shuffle):
                     new_data = random.sample(some_list, len(some_list))
                     final_list.append((np.array(new_data), array))
-            break
+            # break
         np.random.shuffle(final_list)
         np.save("training_comp.npy", final_list)
         print(len(final_list))
@@ -121,12 +90,12 @@ if __name__ == '__main__':
     t = Translate("C:/Users/theerik/PycharmProjects/tft/data/champions.json",
                   "C:/Users/theerik/PycharmProjects/tft/data/data.csv",
                   "C:/Users/theerik/PycharmProjects/tft/data/comps.json")
-    # t.analyze_main(shuffle=5, equal=False)
-    a = t.make_match(
-        (19, 9, 55)
-    )
-    print(a[0])
-    print(a[1])
-    print(a[2])
-    print(a[3])
-    print(a[4])
+    t.analyze_main(shuffle=5, equal=False)
+    # a = t.make_match(
+    #     (19, 9, 55)
+    # )
+    # print(a[0])
+    # print(a[1])
+    # print(a[2])
+    # print(a[3])
+    # print(a[4])
