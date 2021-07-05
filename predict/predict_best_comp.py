@@ -2,29 +2,31 @@ from static_data import Static, item_to_parts
 
 class Predict:
     def __init__(self):
-        s = Static()
-        s.read("C:/Users/theerik/PycharmProjects/tft/data/champions.json")
-        s.read_items("C:/Users/theerik/PycharmProjects/tft/data/items.json")
-        s.read_traits("C:/Users/theerik/PycharmProjects/tft/data/traits.json")
-        s.read_comps_tftactics("C:/Users/theerik/PycharmProjects/tft/data/comps_tactics.json", only_s=False)
-        self.s = s
-        self.comps = s.comps
-        self.champion_to_traits = s.champion_to_traits
-        self.trait_to_champions = s.trait_to_champions
-        self.id_to_tier = s.id_to_tier
+        self.s = Static()
+        self.s.read("C:/Users/theerik/PycharmProjects/tft/data/champions.json")
+        self.s.read_items("C:/Users/theerik/PycharmProjects/tft/data/items.json")
+        self.s.read_traits("C:/Users/theerik/PycharmProjects/tft/data/traits.json")
+        self.s.read_comps_tftactics("C:/Users/theerik/PycharmProjects/tft/data/comps_tactics.json", only_s=False)
+        # self.s.comps
+        # print(self.comps.keys())
+        # self.champion_to_traits = self.s.champion_to_traits
+        # self.trait_to_champions = self.s.trait_to_champions
+        # self.id_to_tier = self.s.id_to_tier
+        # self.id_to_champ = self.s.id_to_champ
+        # self.id_to_item = self.s.id_to_item
         # self.link_to_csv = link_to_csv
 
     def get_same_items_and_champs(self, champions: dict, items: list, comp_dict: dict):
-        core_champs = comp_dict["needed_champs"]
-        start_champs = comp_dict["early_champs"]
-        extra_champs = comp_dict["extra_champs"]
+        core_champs = comp_dict["needed_champs"].copy()
+        start_champs = comp_dict["early_champs"].copy()
+        extra_champs = comp_dict["extra_champs"].copy()
 
-        core_items = comp_dict["needed_items"]
-        core_parts = comp_dict["needed_parts"]
+        core_items = comp_dict["needed_items"].copy()
+        core_parts = comp_dict["needed_parts"].copy()
         core_parts_size = len(core_items) * 2
 
-        extra_items = comp_dict["extra_items"]
-        extra_parts = comp_dict["extra_parts"]
+        extra_items = comp_dict["extra_items"].copy()
+        extra_parts = comp_dict["extra_parts"].copy()
         extra_parts_size = len(extra_items) * 2
 
         # keep track of the keys(champs) that were overlapping
@@ -97,7 +99,7 @@ class Predict:
         lvl 3 = 2
         :return:
         """
-        tier = self.id_to_tier[id]
+        tier = self.s.id_to_tier[id]
         if tier < 2:
             x = 0.8
         elif tier == 3:
@@ -164,9 +166,12 @@ class Predict:
                 champions[i] = 1
 
         size = len(champions)
+        if size == 0:
+            size = 1
         size_i = len(items)
-        for key in self.comps:
-            comp_dict = self.comps[key]
+        # print(self.s.comps.keys())
+        for key in self.s.comps:
+            comp_dict = self.s.comps[key]
             name = comp_dict["name"]
             tier = self.get_comp_tier(name)
 
@@ -174,6 +179,9 @@ class Predict:
             if len(comp_dict) == 1:
                 continue
 
+            # print(champions)
+            # print(items)
+            # print(comp_dict)
 
             core_count, start_count, extra_count, \
             core_i, core_p, core_parts_size, \
@@ -185,7 +193,6 @@ class Predict:
 
             # calculate the final score for sort
             # change here
-
             core_size = self.find_size(core_count, champions)
             start_size = self.find_size(start_count, champions)
             extra_size = self.find_size(extra_count, champions)
@@ -204,7 +211,7 @@ class Predict:
             #          0.5 * (low_p / (2 * size_i))
             score2 = core_i / (core_parts_size * 2) + \
                      0.8 * extra_i / (extra_parts_size * 2) + \
-                     0.9 * core_p / (core_parts_size) + \
+                     0.95 * core_p / (core_parts_size) + \
                      0.8 * extra_p / (extra_parts_size)
 
             score = tier * (1.0 * score1 + 1.0 * score2 + 0.001)
@@ -217,6 +224,22 @@ class Predict:
             # info
             print(key, name)
         return top5
+
+def same_length(top5):
+    print("score key cs   ss   es   s ci cp ei ep si")
+    for top in top5:
+        scr = "{:2.3f}".format(top[0])
+        key = "{:2}".format(top[1])
+        a = "{:2.2f}".format(top[2])
+        b = "{:2.2f}".format(top[3])
+        c = "{:2.2f}".format(top[4])
+        s = "{:2}".format(top[5])
+        sa = "{:2}".format(top[6])
+        sb = "{:2}".format(top[7])
+        sc = "{:2}".format(top[8])
+        sd = "{:2}".format(top[9])
+        ss = "{:2}".format(top[10])
+        print(scr, key, a,b,c,s,sa,sb,sc,sd,ss)
 
 
 if __name__ == '__main__':
@@ -233,17 +256,37 @@ if __name__ == '__main__':
     # print(p.s.id_to_item[99])
     # print(p.s.id_to_item[9])
     # print(p.s.id_to_item[1])
+
+
+    # top5 = p.predict_main(
+    #     # {26: 2, 44: 1, 24: 1, 48: 1, 1: 1},
+    #     {},
+    #     [2,2,2,2],
+    #     # (1009, 9, 3, 5, 2, 5, 1005, 1034),
+    #     5,
+    #     {},
+    #     []
+    # )
+    # print("   scr key cs ss es  s ci cp ei ep si")
+    # print(top5[0])
+    # print(top5[1])
+    # print(top5[2])
+    # print(top5[3])
+    # print(top5[4])
+
     top5 = p.predict_main(
-        {26: 2, 44: 1, 24: 1, 48: 1, 1: 1},
-        [],
+        # {26: 2, 44: 1, 24: 1, 48: 1, 1: 1},
+        {},
+        [2, 2, 2, 2],
         # (1009, 9, 3, 5, 2, 5, 1005, 1034),
         5,
-        {44: 1},
-        [44, 24, 1, 26, 27]
+        {},
+        []
     )
-    print("   scr key cs ss es  s ci cp ei ep si")
-    print(top5[0])
-    print(top5[1])
-    print(top5[2])
-    print(top5[3])
-    print(top5[4])
+    same_length(top5)
+    # print("   scr key cs ss es  s ci cp ei ep si")
+    # print(top5[0])
+    # print(top5[1])
+    # print(top5[2])
+    # print(top5[3])
+    # print(top5[4])

@@ -3,16 +3,17 @@ import json
 
 class Static:
 
-    comp0 = {"name": "null"}  # null
-    comps = {0: comp0}
-    champion_to_traits = {}
-    trait_to_champions = {}
-    trait_to_sets = {}
-    champ_to_id = {"none": 0}
-    id_to_champ = {0: "none"}
-    id_to_item = {}
-    item_to_id = {}
-    id_to_tier = {}
+    def __init__(self):
+        comp0 = {"name": "null"}  # null
+        self.comps = {0: comp0}
+        self.champion_to_traits = {}
+        self.trait_to_champions = {}
+        self.trait_to_sets = {}
+        self.champ_to_id = {"none": 0}
+        self.id_to_champ = {0: "none"}
+        self.id_to_item = {}
+        self.item_to_id = {}
+        self.id_to_tier = {}
 
     def read(self, link):
         with open(link) as json_file:
