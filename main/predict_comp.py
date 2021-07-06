@@ -70,7 +70,7 @@ test_y = y[-val_size:]
 
 # main loop
 batch_size = 64
-epochs = 5
+epochs = 3
 net.train()
 for epoch in range(epochs):
     for i in range(0, len(train_X), batch_size):

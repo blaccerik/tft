@@ -7,12 +7,14 @@ import pickle
 from static_data import Static
 
 class EditData():
-    def __init__(self, link_to_json, link_to_csv):
-        s = Static()
-        s.read(link_to_json)
-        self.champion_to_traits = s.champion_to_traits
-        self.trait_to_champions = s.trait_to_champions
-        self.champ_labels = s.champ_to_id
+    def __init__(self, link_to_csv):
+        self.s = Static()
+        # s.read(link_to_json)
+
+        # self.champion_to_traits = s.champion_to_traits
+        # self.trait_to_champions = s.trait_to_champions
+        # self.champ_labels = s.champ_to_id
+
         self.link_to_csv = link_to_csv
         self.size_of_champion_queue = 10
         # path to csv which has all the data about the matches
@@ -37,12 +39,12 @@ class EditData():
             if size > self.size_of_champion_queue:
                 return None
             for champ_data in json_data["units"]:
-                champ = champ_data["id"].lower()
+                champ = champ_data["id"][5:].lower()
                 items = champ_data["items"]
                 for item in items:
                     items_list.append(item)
                 level = champ_data["level"]
-                id = self.champ_labels[champ]
+                id = self.s.champ_to_id[champ]
                 if id in temp_dict:
                     return None
                 if level == 1:
@@ -103,8 +105,7 @@ class EditData():
 
 
 if __name__ == '__main__':
-    e = EditData("C:/Users/theerik/PycharmProjects/tft/data/champions.json",
-                  "C:/Users/theerik/PycharmProjects/tft/data/data.csv")
+    e = EditData("C:/Users/theerik/PycharmProjects/tft/data/data.csv")
 
     date = "27/06/2021"
     date_number = int(time.mktime(datetime.strptime(date, "%d/%m/%Y").timetuple())) * 1000

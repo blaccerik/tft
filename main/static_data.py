@@ -1,6 +1,5 @@
 import json
 
-
 class Static:
 
     def __init__(self):
@@ -14,22 +13,25 @@ class Static:
         self.id_to_item = {}
         self.item_to_id = {}
         self.id_to_tier = {}
+        self.read("C:/Users/theerik/PycharmProjects/tft/data/champions.json")
+        self.read_items("C:/Users/theerik/PycharmProjects/tft/data/items.json")
+        self.read_traits("C:/Users/theerik/PycharmProjects/tft/data/traits.json")
+        self.read_comps_tftactics("C:/Users/theerik/PycharmProjects/tft/data/comps_tactics.json", only_s=False)
 
     def read(self, link):
         with open(link) as json_file:
             data = json.load(json_file)
             for nr in range(len(data)):
                 p = data[nr]
-                name = p['championId'].lower()
+                name = p['championId'][5:].lower()
                 tier = p["cost"] - 1
                 self.id_to_tier[nr + 1] = tier
                 self.champ_to_id[name] = nr + 1
                 self.id_to_champ[nr + 1] = name
 
-                traits = list(map(lambda x: x.lower(), p['traits']))
+                traits = list(map(lambda x: x[5:].lower(), p['traits']))
                 self.champion_to_traits[name] = traits
                 for i in traits:
-                    i = i.lower()
                     if i in self.trait_to_champions:
                         self.trait_to_champions[i].append(name)
                     else:
@@ -48,30 +50,31 @@ class Static:
         with open(link) as json_file:
             data = json.load(json_file)
             for p in data:
-                name = p["key"].lower()
+                name = p["key"][5:].lower()
                 sets = p["sets"]
                 lista = []
+
                 for i in sets:
                     lista.append(i["min"])
                 self.trait_to_sets[name] = lista
 
-    def read_comps(self, link):
-        with open(link) as json_file:
-            data = json.load(json_file)
-            for p in data:
-                lista = self.translate_name_to_id(p[0])
-                listb = self.translate_name_to_id(p[1])
-                listc = self.translate_name_to_id(p[2])
-                for i in lista:
-                    if i in listb:
-                        listb.remove(i)
-                    if i in listc:
-                        listc.remove(i)
-                for i in listb:
-                    if i in listc:
-                        listc.remove(i)
-                key = max(self.comps)
-                self.comps[key + 1] = (tuple(lista), tuple(listb), tuple(listc))
+    # def read_comps(self, link):
+    #     with open(link) as json_file:
+    #         data = json.load(json_file)
+    #         for p in data:
+    #             lista = self.translate_name_to_id(p[0])
+    #             listb = self.translate_name_to_id(p[1])
+    #             listc = self.translate_name_to_id(p[2])
+    #             for i in lista:
+    #                 if i in listb:
+    #                     listb.remove(i)
+    #                 if i in listc:
+    #                     listc.remove(i)
+    #             for i in listb:
+    #                 if i in listc:
+    #                     listc.remove(i)
+    #             key = max(self.comps)
+    #             self.comps[key + 1] = (tuple(lista), tuple(listb), tuple(listc))
 
     def read_comps_tftactics(self, link, only_s=True):
         with open(link) as json_file:
@@ -108,7 +111,7 @@ class Static:
                 needed_champs = []
                 for obj in lista:
                     # print(self.champ_to_id)
-                    champ = ("tft5_" + obj).replace(" ", "")
+                    champ = obj.replace(" ", "")
                     if champ in self.champ_to_id:
                         needed_champs.append(self.champ_to_id[champ])
                     else:
@@ -131,11 +134,11 @@ class Static:
                 extra_champs = []
                 # might need to change if i want champs to overlap
                 for champ in early:
-                    a = self.champ_to_id[("tft5_" + champ).replace(" ", "")]
+                    a = self.champ_to_id[champ.replace(" ", "")]
                     if a not in needed_champs:
                         early_champs.append(a)
                 for champ in options:
-                    a = self.champ_to_id[("tft5_" + champ).replace(" ", "")]
+                    a = self.champ_to_id[champ.replace(" ", "")]
                     if a not in needed_champs and a not in early_champs:
                         extra_champs.append(a)
 
@@ -156,8 +159,9 @@ class Static:
         lista = []
         for i in input:
             if "-" in i:
+                # lee-sin :(
                 i = i.replace("-", "")
-            name = f"tft5_{i.lower()}"
+            name = i.lower()
             id = self.champ_to_id[name]
             lista.append(id)
         return lista
@@ -176,16 +180,22 @@ class Static:
             final_list.append(self.id_to_item[i])
         print(final_list)
 
-    def start(self):
+    def only_letters(self):
         """
-        used to create dict in the console which can be used to create the labels
+        used in screen.py
+        to only use letters that are in trait names
         :return:
         """
-        with open('C:/Users/theerik/PycharmProjects/tft/data/champions.json') as json_file:
-            data = json.load(json_file)
-            for p in range(len(data)):
-                a = data[p]["championId"].lower()
-                print(f'"{a}": {p + 1},')
+        seta = set()
+        for i in self.trait_to_champions:
+            seta.update(list(i))
+        seta = list(seta)
+        seta.sort()
+        text = ""
+        for i in seta:
+            text += i
+            text += i.capitalize()
+        print(text)
 
 def item_to_parts(item, needed_parts):
     # for normal items
@@ -206,10 +216,7 @@ def item_to_parts(item, needed_parts):
 if __name__ == '__main__':
     s = Static()
     # s.start()
-    s.read("C:/Users/theerik/PycharmProjects/tft/data/champions.json")
-    s.read_items("C:/Users/theerik/PycharmProjects/tft/data/items.json")
-    s.read_traits("C:/Users/theerik/PycharmProjects/tft/data/traits.json")
-    s.read_comps_tftactics("C:/Users/theerik/PycharmProjects/tft/data/comps_tactics.json")
+    s.only_letters()
     # print(s.champ_to_id)
     # print(s.id_to_champ)
     # print(s.champion_to_traits)

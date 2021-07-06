@@ -3,10 +3,6 @@ from static_data import Static, item_to_parts
 class Predict:
     def __init__(self):
         self.s = Static()
-        self.s.read("C:/Users/theerik/PycharmProjects/tft/data/champions.json")
-        self.s.read_items("C:/Users/theerik/PycharmProjects/tft/data/items.json")
-        self.s.read_traits("C:/Users/theerik/PycharmProjects/tft/data/traits.json")
-        self.s.read_comps_tftactics("C:/Users/theerik/PycharmProjects/tft/data/comps_tactics.json", only_s=False)
         # self.s.comps
         # print(self.comps.keys())
         # self.champion_to_traits = self.s.champion_to_traits
@@ -262,29 +258,6 @@ if __name__ == '__main__':
     p.s.number_to_items(
         (1009, 9, 3, 5)
     )
-    # print(p.s.champ_to_id["tft5_teemo"])
-    # print(p.s.champ_to_id["tft5_warwick"])
-    # print(p.s.champ_to_id["tft5_thresh"])
-    # print(p.s.id_to_item[99])
-    # print(p.s.id_to_item[9])
-    # print(p.s.id_to_item[1])
-
-
-    # top5 = p.predict_main(
-    #     # {26: 2, 44: 1, 24: 1, 48: 1, 1: 1},
-    #     {},
-    #     [2,2,2,2],
-    #     # (1009, 9, 3, 5, 2, 5, 1005, 1034),
-    #     5,
-    #     {},
-    #     []
-    # )
-    # print("   scr key cs ss es  s ci cp ei ep si")
-    # print(top5[0])
-    # print(top5[1])
-    # print(top5[2])
-    # print(top5[3])
-    # print(top5[4])
 
     top5 = p.predict_main(
         # {26: 2, 44: 1, 24: 1, 48: 1, 1: 1},
@@ -296,9 +269,3 @@ if __name__ == '__main__':
         []
     )
     same_length(top5)
-    # print("   scr key cs ss es  s ci cp ei ep si")
-    # print(top5[0])
-    # print(top5[1])
-    # print(top5[2])
-    # print(top5[3])
-    # print(top5[4])
