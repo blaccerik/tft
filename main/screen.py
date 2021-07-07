@@ -4,17 +4,20 @@ import numpy as np
 import cv2
 import time
 import difflib
+
+from PIL import Image
 from pytesseract import pytesseract
 from Templates import Templates
 from Control import Control
 from Champions import Champions
 from static_data import Static
 from Trait_to_champion import Calculator
+from Items import Items
 
 class Screen:
     def __init__(self):
 
-        self.color = False
+        self.color = True
 
         self.s = Static()
 
@@ -22,20 +25,32 @@ class Screen:
 
         self.sct = mss.mss()
         self.champs = {}
+        self.items = {}
         t = Templates()
         self.load_templates(t.get_badge_templates(self.color))
         c = Champions()
         self.load_champions(c.get_champion_list(self.color))
+        i = Items()
+        self.load_items(i.get_item_list(self.color))
 
     def load_templates(self, templates: list):
         self.bronze = templates[0]
         self.silver = templates[1]
+        # 0 is bronze, 1 gold, 2 silver
+        self.badges = templates
 
     def load_champions(self, champions: list):
         for i in champions:
             name = i[0]
             array = i[1]
             self.champs[name] = array
+        pass
+
+    def load_items(self, items: list):
+        for i in items:
+            name = i[0]
+            array = i[1]
+            self.items[name] = array
         pass
 
     def take_picture(self, monitor, color):
@@ -298,9 +313,170 @@ class Screen:
         pass
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+    def make_match2(self, image, smaller_image, method, threshold, coords):
+        # todo make sure same place is not counted twice
+        res = cv2.matchTemplate(image, smaller_image, method)
+        loc = np.where(res >= threshold)
+
+        # color issue
+        if self.color:
+            w, h, nr = smaller_image.shape
+        else:
+            w, h = smaller_image.shape
+
+        for pt in zip(*loc[::-1]):
+            x = pt[0]
+            y = pt[1]
+            coords.append((x, y))
+
+    def is_item(self, image):
+        # cv2.imwrite('color_img.jpg', image)
+        method = cv2.TM_SQDIFF_NORMED
+        if image.shape[0] < 27:
+            return False
+
+        items = set()
+        # print("---")
+
+        for item_key in self.items:
+            item_array = self.items[item_key]
+
+            res = cv2.matchTemplate(image, item_array, method)
+            min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)
+            # if min_val < 0.2:
+            #     print(self.s.id_to_item[int(item_key)], min_val)
+            if min_val < 0.14:
+                print(self.s.id_to_item[int(item_key)], min_val)
+                # cv2.imshow("b", image)
+                # if cv2.waitKey(25) & 0xFF == ord("q"):
+                #     cv2.destroyAllWindows()
+                #     break
+                # print(item_key)
+                # time.sleep(1)
+                # print(item_key, min_val)
+                return True
+        return False
+
+    def match_badge(self, image, badge_id, coords):
+
+        method = cv2.TM_CCOEFF_NORMED
+        threshold = 0.75
+
+        smaller_img = self.badges[badge_id]
+        res = cv2.matchTemplate(image, smaller_img, method)
+        loc = np.where(res >= threshold)
+
+        for pt in zip(*loc[::-1]):
+            x = pt[0]
+            y = pt[1]
+            if badge_id == 2:
+                x += 6
+            if badge_id == 1:
+                x += 9
+            coords.append((x, y))
+
+    def main(self, me):
+
+        if me:
+            count_champ_monitor = {"top": 0, "left": 0, "width": 1440, "height": 900}
+        else:
+            count_champ_monitor = {"top": 68, "left": 355, "width": 722, "height": 271}
+        method = cv2.TM_CCOEFF_NORMED
+        badge_threshold = 0.8
+        what_traits_monitor = {"top": 239, "left": 43, "width": 103, "height": 434}
+        count_traits_monitor = {"top": 239, "left": 9, "width": 1, "height": 450}
+        count_traits_monitor_edit = {"top": 239, "left": 9, "width": 150, "height": 450}
+        strip_length = 33
+
+        while True:
+            # for fps
+            last_time = time.time()
+            half_img = self.take_picture(count_champ_monitor, self.color)
+
+            coords = []
+
+            # find all bronze champs on screen
+            self.match_badge(half_img, 0, coords)
+            # find all silver champs on screen
+            self.match_badge(half_img, 2, coords)
+            # gold
+            self.match_badge(half_img, 1, coords)
+
+            # print(coords)
+
+            shift = 30
+            coords2 = []
+            for coord in coords:
+                x = coord[0]
+                y = coord[1]
+                # coords2.append((x, y))
+
+                # cv2.rectangle(half_img, (x, y + 10), (x + 85, y + 40), (255, 255, 255), 1)
+                # cv2.rectangle(half_img, (x + 5, y + 15), (x + 35, y + 45), (255, 255, 255), 1)
+                # part = half_img[y + 15:y + 45, x + 5:x + 35]
+
+                # check if champion has item
+                # this includes 3 items
+                # half_img[y + 13:y + 40, x:x + 80]
+
+                if self.is_item(half_img[y + 13:y + 40, x:x + 27]):
+                    # cv2.rectangle(half_img, (x + 20, y + 20 + 24), (x + 70, y + 70 + 24), (255, 255, 255), 1)
+                    # champion_part = half_img[y + 44:y + 94, x + 20:x + 70]
+                    add = 24
+                else:
+                    add = 0
+                    # champion_part = half_img[y + 20:y + 70, x + 20:x + 70]
+                    # cv2.rectangle(half_img, (x + 20, y + 20), (x + 70, y + 70), (255, 255, 255), 1)
+
+                # # champion_part = half_img[y + 20 + add:y + 70 + add, x + 20:x + 70]
+                coords2.append((x, y + add))
+                #
+                # # find picture of the champion
+                # champion_part = half_img[y + 25 + add:y + 65 + add, x + 37:x + 65]
+                # # cv2.imshow("b", champion_part)
+                # # if cv2.waitKey(25) & 0xFF == ord("q"):
+                # #     cv2.destroyAllWindows()
+                # #     break
+                #
+                # # get rgb values
+                # print([champion_part[...,i].mean() for i in range(champion_part.shape[-1])])
+            for coord in coords2:
+                x = coord[0]
+                y = coord[1]
+                # cv2.rectangle(half_img, (x, y + 12), (x + 80, y + 40), (255, 255, 255), 1)
+                # arr = half_img[y + 13:y + 40, x:x + 80]
+                # print(arr.shape)
+                # cv2.imwrite('color_img.jpg', arr)
+                # im = Image.fromarray(arr, "RGB")
+                # im.save("filename.png")
+                # return
+                cv2.rectangle(half_img, (x + 20, y + 20), (x + 70, y + 70), (255, 255, 255), 1)
+            cv2.imshow("b", half_img)
+            if cv2.waitKey(25) & 0xFF == ord("q"):
+                cv2.destroyAllWindows()
+                break
+            print("fps:", 1 / (time.time() - last_time))
+            time.sleep(0.01)
+        pass
+
+
 if __name__ == '__main__':
     #
     # mss.mss().shot(output="traits8.png")
     s = Screen()
     c = Control()
-    s.main_reader(False, c)
+    # s.main_reader(False, c)
+    s.main(False)
