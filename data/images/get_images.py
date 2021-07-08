@@ -4,7 +4,7 @@ import time
 def main():
     time.sleep(5)
     print("-------")
-    for i in range(8):
+    for i in range(7):
         nr = int(time.time() * 100)
         name = f"{nr}.png"
         mss.mss().shot(output=name)
