@@ -187,14 +187,16 @@ class Static:
         :return:
         """
         seta = set()
-        for i in self.trait_to_champions:
+        for i in self.champion_to_traits:
             seta.update(list(i))
+            seta.update(i[0].capitalize())
+        # for i in self.trait_to_champions:
+        #     seta.update(list(i))
         seta = list(seta)
         seta.sort()
         text = ""
         for i in seta:
             text += i
-            text += i.capitalize()
         print(text)
 
 def item_to_parts(item, needed_parts):

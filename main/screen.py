@@ -326,21 +326,20 @@ class Screen:
 
 
 
-    def make_match2(self, image, smaller_image, method, threshold, coords):
+    def are_same(self, image, image2):
         # todo make sure same place is not counted twice
-        res = cv2.matchTemplate(image, smaller_image, method)
-        loc = np.where(res >= threshold)
+        if image2 is None:
+            return True
 
-        # color issue
-        if self.color:
-            w, h, nr = smaller_image.shape
-        else:
-            w, h = smaller_image.shape
-
-        for pt in zip(*loc[::-1]):
-            x = pt[0]
-            y = pt[1]
-            coords.append((x, y))
+        res = cv2.matchTemplate(image, image2, cv2.TM_SQDIFF_NORMED)
+        min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)
+        if min_val < 0.1:
+            return False
+        # for pt in zip(*loc[::-1]):
+        #     print(res)
+        #     return True
+        # return False
+        return True
 
     def is_item(self, image):
         # cv2.imwrite('color_img.jpg', image)
@@ -348,18 +347,62 @@ class Screen:
         if image.shape[0] < 27:
             return False
 
-        items = set()
+        # items = set()
         # print("---")
 
         for item_key in self.items:
             item_array = self.items[item_key]
-
             res = cv2.matchTemplate(image, item_array, method)
+            min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)
+            if min_val < 0.14:
+                print(self.s.id_to_item[int(item_key)], min_val)
+                return True
+        return False
+
+    def match_badge(self, image, badge_id, coords):
+        method = cv2.TM_CCOEFF_NORMED
+        threshold = 0.75
+        smaller_img = self.badges[badge_id]
+        res = cv2.matchTemplate(image, smaller_img, method)
+        loc = np.where(res >= threshold)
+        for pt in zip(*loc[::-1]):
+            x = pt[0]
+            y = pt[1]
+            if badge_id == 2:
+                x += 6
+            if badge_id == 1:
+                x += 9
+            coords.append((x, y))
+
+    def text_to_name(self, text):
+        text = text.lower()
+        if text in self.s.champ_to_id:
+            return text
+        else:
+            some = difflib.get_close_matches(text, self.s.champ_to_id)
+            if len(some) > 0:
+                return some[0]
+
+
+    def champ(self, image):
+        # cv2.imwrite('color_img.jpg', image)
+        method = cv2.TM_SQDIFF_NORMED
+        # if image.shape[0] < 27:
+        #     return False
+
+        # items = set()
+        # print("---")
+
+        for key in self.champs:
+            array = self.champs[key]
+
+            res = cv2.matchTemplate(image, array, method)
             min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)
             # if min_val < 0.2:
             #     print(self.s.id_to_item[int(item_key)], min_val)
             if min_val < 0.14:
-                print(self.s.id_to_item[int(item_key)], min_val)
+                print(key, min_val)
+                # print(self.s.id_to_item[int(item_key)], min_val)
                 # cv2.imshow("b", image)
                 # if cv2.waitKey(25) & 0xFF == ord("q"):
                 #     cv2.destroyAllWindows()
@@ -370,106 +413,95 @@ class Screen:
                 return True
         return False
 
-    def match_badge(self, image, badge_id, coords):
-
-        method = cv2.TM_CCOEFF_NORMED
-        threshold = 0.75
-
-        smaller_img = self.badges[badge_id]
-        res = cv2.matchTemplate(image, smaller_img, method)
-        loc = np.where(res >= threshold)
-
-        for pt in zip(*loc[::-1]):
-            x = pt[0]
-            y = pt[1]
-            if badge_id == 2:
-                x += 6
-            if badge_id == 1:
-                x += 9
-            coords.append((x, y))
-
     def main(self, me):
 
         if me:
-            count_champ_monitor = {"top": 0, "left": 0, "width": 1440, "height": 900}
+            count_champ_monitor = {"top": 230, "left": 355, "width": 750, "height": 330}
+            store_champ_monitor = {"top": 870, "left": 321, "width": 833, "height": 18}
+            bench_champ_monitor = {"top": 560, "left": 200, "width": 922, "height": 120}
+            items_monitor = {"top": 0, "left": 0, "width": 1440, "height": 900}
+            last_store_image = None
         else:
-            count_champ_monitor = {"top": 68, "left": 355, "width": 722, "height": 271}
-        method = cv2.TM_CCOEFF_NORMED
-        badge_threshold = 0.8
-        what_traits_monitor = {"top": 239, "left": 43, "width": 103, "height": 434}
-        count_traits_monitor = {"top": 239, "left": 9, "width": 1, "height": 450}
-        count_traits_monitor_edit = {"top": 239, "left": 9, "width": 150, "height": 450}
-        strip_length = 33
+            count_champ_monitor = {"top": 60, "left": 355, "width": 690, "height": 250}
 
         while True:
             # for fps
             last_time = time.time()
+            # take picture of the champions
             half_img = self.take_picture(count_champ_monitor, self.color)
-
             coords = []
-
             # find all bronze champs on screen
             self.match_badge(half_img, 0, coords)
             # find all silver champs on screen
             self.match_badge(half_img, 2, coords)
             # gold
             self.match_badge(half_img, 1, coords)
-
-            # print(coords)
-
-            shift = 30
             coords2 = []
             for coord in coords:
                 x = coord[0]
                 y = coord[1]
-                # coords2.append((x, y))
-
-                # cv2.rectangle(half_img, (x, y + 10), (x + 85, y + 40), (255, 255, 255), 1)
-                # cv2.rectangle(half_img, (x + 5, y + 15), (x + 35, y + 45), (255, 255, 255), 1)
-                # part = half_img[y + 15:y + 45, x + 5:x + 35]
 
                 # check if champion has item
                 # this includes 3 items
                 # half_img[y + 13:y + 40, x:x + 80]
-
                 if self.is_item(half_img[y + 13:y + 40, x:x + 27]):
-                    # cv2.rectangle(half_img, (x + 20, y + 20 + 24), (x + 70, y + 70 + 24), (255, 255, 255), 1)
-                    # champion_part = half_img[y + 44:y + 94, x + 20:x + 70]
                     add = 24
                 else:
                     add = 0
-                    # champion_part = half_img[y + 20:y + 70, x + 20:x + 70]
-                    # cv2.rectangle(half_img, (x + 20, y + 20), (x + 70, y + 70), (255, 255, 255), 1)
-
-                # # champion_part = half_img[y + 20 + add:y + 70 + add, x + 20:x + 70]
                 coords2.append((x, y + add))
-                #
-                # # find picture of the champion
-                # champion_part = half_img[y + 25 + add:y + 65 + add, x + 37:x + 65]
-                # # cv2.imshow("b", champion_part)
-                # # if cv2.waitKey(25) & 0xFF == ord("q"):
-                # #     cv2.destroyAllWindows()
-                # #     break
-                #
-                # # get rgb values
-                # print([champion_part[...,i].mean() for i in range(champion_part.shape[-1])])
+            # draw box
             for coord in coords2:
                 x = coord[0]
                 y = coord[1]
-                # cv2.rectangle(half_img, (x, y + 12), (x + 80, y + 40), (255, 255, 255), 1)
-                # arr = half_img[y + 13:y + 40, x:x + 80]
-                # print(arr.shape)
-                # cv2.imwrite('color_img.jpg', arr)
-                # im = Image.fromarray(arr, "RGB")
-                # im.save("filename.png")
-                # return
                 cv2.rectangle(half_img, (x + 20, y + 20), (x + 70, y + 70), (255, 255, 255), 1)
+
+            if me:
+                bench = self.take_picture(bench_champ_monitor, self.color)
+                coords = []
+                # bronze
+                self.match_badge(bench, 0, coords)
+                # silver
+                self.match_badge(bench, 2, coords)
+                # gold
+                self.match_badge(bench, 1, coords)
+                print("bench:", len(coords))
+                # cv2.imshow("b", bench)
+                # if cv2.waitKey(25) & 0xFF == ord("q"):
+                #     cv2.destroyAllWindows()
+                #     break
+
+                # gets name from the store
+                # None is when no champ is found
+                # is kinda slow for 1 cycle
+                # might replace with average color value
+                store = self.take_picture(store_champ_monitor, False)
+
+                # check if store has been updated:
+                if self.are_same(store, last_store_image):
+                    last_store_image = store
+                    for i in range(5):
+                        x = 168 * i
+                        one_store_name_cell = store[:, x:x + 60]
+
+                        # VERY SLOW
+                        text = pytesseract.image_to_string(one_store_name_cell, config='--psm 8 --oem 3 -c tessedit_char_whitelist='
+                                                                             'ABDGHIJKLMNPRSTUVWYZabcdeghijklmnoprstuvwxyz')
+                        name = self.text_to_name(max(text.splitlines()))
+                        print(name)
+                        # cv2.imshow("b", one_store_name_cell)
+                        # if cv2.waitKey(25) & 0xFF == ord("q"):
+                        #     cv2.destroyAllWindows()
+                        #     break
+                # else:
+                #     print("read")
+
             cv2.imshow("b", half_img)
             if cv2.waitKey(25) & 0xFF == ord("q"):
                 cv2.destroyAllWindows()
                 break
             print("fps:", 1 / (time.time() - last_time))
-            time.sleep(0.01)
+            print("time:", time.time() - last_time)
+            time.sleep(0.5)
         pass
 
 
