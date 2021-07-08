@@ -3,7 +3,7 @@ import time
 
 def main():
     time.sleep(5)
-    print("------")
+    print("-------")
     for i in range(8):
         nr = int(time.time() * 100)
         name = f"{nr}.png"
