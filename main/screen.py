@@ -428,22 +428,35 @@ class Screen:
         return dicta
 
 
-    def main(self, me, show=False):
+    def main(self, control, show=False):
 
-        if me:
-            count_champ_monitor = {"top": 230, "left": 210, "width": 900, "height": 450}
-            store_champ_monitor = {"top": 790, "left": 320, "width": 831, "height": 45}
-            # bench_champ_monitor = {"top": 560, "left": 200, "width": 922, "height": 120}
-            # items_monitor = {"top": 0, "left": 0, "width": 1440, "height": 900}
-            # last_store_image = None
-        else:
-            count_champ_monitor = {"top": 25, "left": 355, "width": 690, "height": 315}
+        acc = 0.10
+        store_champ_monitor = {"top": 790, "left": 320, "width": 831, "height": 45}
+        my_number = None
+        start_x = 1400
+        start_y = 170
+        shift = 63
 
-        acc = 0.01
 
-        while True:
+        # get data about all players
+        for player_number in range(8):
             # for fps
             last_time = time.time()
+            control.click_on_champ(start_x, start_y + shift * player_number)
+
+            me = False
+            # get champs from store
+            # if cant get data from store that means its other player
+            store = self.take_picture(store_champ_monitor, False)
+            champions_in_store = self.match_champ(store)
+            if len(champions_in_store) > 0:
+                my_number = player_number
+                me = True
+            if me:
+                count_champ_monitor = {"top": 230, "left": 210, "width": 900, "height": 450}
+            else:
+                count_champ_monitor = {"top": 25, "left": 355, "width": 690, "height": 315}
+
             # take picture of the champions
             half_img = self.take_picture(count_champ_monitor, self.color)
 
@@ -455,6 +468,7 @@ class Screen:
 
             # take picture with yolo
             height, width, _ = half_img.shape
+            # 416 is default size, do not change
             blob = cv2.dnn.blobFromImage(half_img, 1 / 255, (416, 416), (0, 0, 0), swapRB=True, crop=False)
             self.net.setInput(blob)
             output_layers_names = self.net.getUnconnectedOutLayersNames()
@@ -462,7 +476,6 @@ class Screen:
             boxes = []
             confs = []
             class_ids = []
-
             # detect
             for output in layerOutputs:
                 for detection in output:
@@ -474,10 +487,8 @@ class Screen:
                         ceny = int(detection[1] * height)
                         w = int(detection[2] * width)
                         h = int(detection[3] * height)
-
                         x = int(cenx - w / 2)
                         y = int(ceny - h / 2)
-
                         boxes.append([x, y, w, h])
                         confs.append((float(conf)))
                         class_ids.append(class_id)
@@ -496,13 +507,7 @@ class Screen:
                 for i in indexes.flatten():
                     label = str(self.classes[class_ids[i]])
                     x, y, w, h = boxes[i]
-
-                    # find center point
-                    x_super = x
-                    y_super = y
-
-                    champions_coords.append((label, x_super, y_super))
-
+                    champions_coords.append((label, x, y))
                     # show boxes
                     if show:
                         confidence = str(round(confs[i], 2))
@@ -510,33 +515,20 @@ class Screen:
                         cv2.rectangle(half_img, (x, y), (x + w, y + h), color, 2)
                         cv2.putText(half_img, label + " " + confidence, (x, y + 20), font, 2, (255, 255, 255), 2)
 
-
-            # # show badge locations
+            # show badge locations
             if show:
                 for coord in badge_coords:
                     x = coord[1]
                     y = coord[2]
                     cv2.rectangle(half_img, (x, y), (x + 60, y + 60), (255, 255, 255), 1)
 
-
             # create champ dict
             champ_dict = self.get_tier_dict(champions_coords, badge_coords)
-
-            # get data from "me"
-            if me:
-                # get champs from store
-                store = self.take_picture(store_champ_monitor, False)
-                # cv2.imshow("b", store)
-                # if cv2.waitKey(25) & 0xFF == ord("q"):
-                #     cv2.destroyAllWindows()
-                #     break
-                champions_in_store = self.match_champ(store)
-                # print("champs in store", champions_in_store)
-                for champ in champions_in_store:
-                    if champ in champ_dict:
-                        champ_dict[champ] += 1
-                    else:
-                        champ_dict[champ] = 1
+            for champ in champions_in_store:
+                if champ in champ_dict:
+                    champ_dict[champ] += 1
+                else:
+                    champ_dict[champ] = 1
             print(champ_dict)
             if show:
                 cv2.imshow("b", half_img)
@@ -546,13 +538,15 @@ class Screen:
             print("fps:", 1 / (time.time() - last_time))
             print("time:", time.time() - last_time)
             time.sleep(0.01)
+        print(my_number)
         pass
 
 
 if __name__ == '__main__':
     #
     # mss.mss().shot(output="traits8.png")
+    time.sleep(2)
     s = Screen()
     c = Control()
     # s.main_reader(False, c)
-    s.main(False, show=False)
+    s.main(c, show=True)

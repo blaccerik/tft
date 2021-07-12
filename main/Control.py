@@ -10,6 +10,6 @@ class Control:
         pyautogui.moveTo(x,y)
 
     def click_on_champ(self, x, y):
-        pyautogui.mouseDown(x=x, y=y, button='right')
+        pyautogui.mouseDown(x=x, y=y, button='left')
         time.sleep(0.001)
-        pyautogui.mouseUp(button='right')
+        pyautogui.mouseUp(button='left')
