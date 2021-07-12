@@ -29,9 +29,18 @@ class Screen:
         t = Templates()
         self.load_templates(t.get_badge_templates(self.color))
         c = Champions()
-        self.load_champions(c.get_champion_list(self.color))
+        self.load_champions(c.get_champion_list(False))
         i = Items()
         self.load_items(i.get_item_list(self.color))
+
+        weights = "C:/Users/theerik/PycharmProjects/tft/data/images/network/yolov3_training_last.weights"
+        cfg = "C:/Users/theerik/PycharmProjects/tft/data/images/network/yolov3_testing.cfg"
+        classes_link = "C:/Users/theerik/PycharmProjects/tft/data/images/network/classes.txt"
+
+        self.net = cv2.dnn.readNet(weights, cfg)
+
+        with open(classes_link, "r") as f:
+            self.classes = f.read().splitlines()
 
     def load_templates(self, templates: list):
         self.bronze = templates[0]
@@ -341,25 +350,11 @@ class Screen:
         # return False
         return True
 
-    def is_item(self, image):
-        # cv2.imwrite('color_img.jpg', image)
-        method = cv2.TM_SQDIFF_NORMED
-        if image.shape[0] < 27:
-            return False
-
-        # items = set()
-        # print("---")
-
-        for item_key in self.items:
-            item_array = self.items[item_key]
-            res = cv2.matchTemplate(image, item_array, method)
-            min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)
-            if min_val < 0.14:
-                print(self.s.id_to_item[int(item_key)], min_val)
-                return True
-        return False
-
     def match_badge(self, image, badge_id, coords):
+
+        shift_x = 10
+        shift_y = 10
+
         method = cv2.TM_CCOEFF_NORMED
         threshold = 0.75
         smaller_img = self.badges[badge_id]
@@ -372,136 +367,185 @@ class Screen:
                 x += 6
             if badge_id == 1:
                 x += 9
-            coords.append((x, y))
-
-    def text_to_name(self, text):
-        text = text.lower()
-        if text in self.s.champ_to_id:
-            return text
-        else:
-            some = difflib.get_close_matches(text, self.s.champ_to_id)
-            if len(some) > 0:
-                return some[0]
+            coords.append((badge_id, x+ shift_x, y + shift_y))
 
 
-    def champ(self, image):
-        # cv2.imwrite('color_img.jpg', image)
-        method = cv2.TM_SQDIFF_NORMED
-        # if image.shape[0] < 27:
-        #     return False
-
-        # items = set()
-        # print("---")
-
+    def match_champ(self, image):
+        method = cv2.TM_CCOEFF_NORMED
+        threshold = 0.95
+        lista = []
         for key in self.champs:
             array = self.champs[key]
-
             res = cv2.matchTemplate(image, array, method)
-            min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)
-            # if min_val < 0.2:
-            #     print(self.s.id_to_item[int(item_key)], min_val)
-            if min_val < 0.14:
-                print(key, min_val)
-                # print(self.s.id_to_item[int(item_key)], min_val)
-                # cv2.imshow("b", image)
-                # if cv2.waitKey(25) & 0xFF == ord("q"):
-                #     cv2.destroyAllWindows()
-                #     break
-                # print(item_key)
-                # time.sleep(1)
-                # print(item_key, min_val)
-                return True
-        return False
+            loc = np.where(res >= threshold)
+            for pt in zip(*loc[::-1]):
+                # x = pt[0]
+                # y = pt[1]
+                # print(key)
+                lista.append(key)
+        return lista
 
-    def main(self, me):
+    def get_tier_dict(self, champions_coords, badge_coords):
+        """
+        Match champions and their tiers
+        closest one to the radius center is the final one
+        :param champions_coords:
+        :param badge_coords:
+        :return:
+        """
+        radius = 50
+        dicta = {}
+        for champ_set in champions_coords:
+            champ_name = champ_set[0]
+            champ_x = champ_set[1]
+            champ_y = champ_set[2]
+            best = 0
+            best_index = None
+            best_error = 2 * radius + 1
+            for badge_set_index in range(len(badge_coords)):
+                badge_set = badge_coords[badge_set_index]
+                badge_id = badge_set[0]
+                badge_x = badge_set[1]
+                badge_y = badge_set[2]
+                xx = abs(champ_x - badge_x)
+                yy = abs(champ_y - badge_y)
+                if xx < radius and yy < radius and xx + yy < best_error:
+                    best_error = xx + yy
+                    best = badge_id
+                    best_index = badge_set_index
+            if best_index is not None:
+                del badge_coords[best_index]
+            if best == 0:
+                value = 1
+            elif best == 2:
+                value = 3
+            else:
+                value = 9
+            if champ_name in dicta:
+                dicta[champ_name] += value
+            else:
+                dicta[champ_name] = value
+        return dicta
+
+
+    def main(self, me, show=False):
 
         if me:
-            count_champ_monitor = {"top": 230, "left": 355, "width": 750, "height": 330}
-            store_champ_monitor = {"top": 870, "left": 321, "width": 833, "height": 18}
-            bench_champ_monitor = {"top": 560, "left": 200, "width": 922, "height": 120}
-            items_monitor = {"top": 0, "left": 0, "width": 1440, "height": 900}
-            last_store_image = None
+            count_champ_monitor = {"top": 230, "left": 210, "width": 900, "height": 450}
+            store_champ_monitor = {"top": 790, "left": 320, "width": 831, "height": 45}
+            # bench_champ_monitor = {"top": 560, "left": 200, "width": 922, "height": 120}
+            # items_monitor = {"top": 0, "left": 0, "width": 1440, "height": 900}
+            # last_store_image = None
         else:
-            count_champ_monitor = {"top": 60, "left": 355, "width": 690, "height": 250}
+            count_champ_monitor = {"top": 25, "left": 355, "width": 690, "height": 315}
+
+        acc = 0.01
 
         while True:
             # for fps
             last_time = time.time()
             # take picture of the champions
             half_img = self.take_picture(count_champ_monitor, self.color)
-            coords = []
-            # find all bronze champs on screen
-            self.match_badge(half_img, 0, coords)
-            # find all silver champs on screen
-            self.match_badge(half_img, 2, coords)
-            # gold
-            self.match_badge(half_img, 1, coords)
-            coords2 = []
-            for coord in coords:
-                x = coord[0]
-                y = coord[1]
 
-                # check if champion has item
-                # this includes 3 items
-                # half_img[y + 13:y + 40, x:x + 80]
-                if self.is_item(half_img[y + 13:y + 40, x:x + 27]):
-                    add = 24
-                else:
-                    add = 0
-                coords2.append((x, y + add))
-            # draw box
-            for coord in coords2:
-                x = coord[0]
-                y = coord[1]
-                cv2.rectangle(half_img, (x + 20, y + 20), (x + 70, y + 70), (255, 255, 255), 1)
+            # find number of champs
+            badge_coords = []
+            self.match_badge(half_img, 0, badge_coords)
+            self.match_badge(half_img, 2, badge_coords)
+            self.match_badge(half_img, 1, badge_coords)
 
+            # take picture with yolo
+            height, width, _ = half_img.shape
+            blob = cv2.dnn.blobFromImage(half_img, 1 / 255, (416, 416), (0, 0, 0), swapRB=True, crop=False)
+            self.net.setInput(blob)
+            output_layers_names = self.net.getUnconnectedOutLayersNames()
+            layerOutputs = self.net.forward(output_layers_names)
+            boxes = []
+            confs = []
+            class_ids = []
+
+            # detect
+            for output in layerOutputs:
+                for detection in output:
+                    scores = detection[5:]
+                    class_id = np.argmax(scores)
+                    conf = scores[class_id]
+                    if conf > acc:
+                        cenx = int(detection[0] * width)
+                        ceny = int(detection[1] * height)
+                        w = int(detection[2] * width)
+                        h = int(detection[3] * height)
+
+                        x = int(cenx - w / 2)
+                        y = int(ceny - h / 2)
+
+                        boxes.append([x, y, w, h])
+                        confs.append((float(conf)))
+                        class_ids.append(class_id)
+
+            # 0.4 default
+            # sometimes error
+            indexes = cv2.dnn.NMSBoxes(boxes, confs, acc, 0.4)
+
+            # for boxes
+            if show:
+                font = cv2.FONT_HERSHEY_PLAIN
+                colors = np.random.uniform(0, 255, size=(len(boxes), 3))
+
+            champions_coords = []
+            if len(indexes) > 0:
+                for i in indexes.flatten():
+                    label = str(self.classes[class_ids[i]])
+                    x, y, w, h = boxes[i]
+
+                    # find center point
+                    x_super = x
+                    y_super = y
+
+                    champions_coords.append((label, x_super, y_super))
+
+                    # show boxes
+                    if show:
+                        confidence = str(round(confs[i], 2))
+                        color = colors[i]
+                        cv2.rectangle(half_img, (x, y), (x + w, y + h), color, 2)
+                        cv2.putText(half_img, label + " " + confidence, (x, y + 20), font, 2, (255, 255, 255), 2)
+
+
+            # # show badge locations
+            if show:
+                for coord in badge_coords:
+                    x = coord[1]
+                    y = coord[2]
+                    cv2.rectangle(half_img, (x, y), (x + 60, y + 60), (255, 255, 255), 1)
+
+
+            # create champ dict
+            champ_dict = self.get_tier_dict(champions_coords, badge_coords)
+
+            # get data from "me"
             if me:
-                bench = self.take_picture(bench_champ_monitor, self.color)
-                coords = []
-                # bronze
-                self.match_badge(bench, 0, coords)
-                # silver
-                self.match_badge(bench, 2, coords)
-                # gold
-                self.match_badge(bench, 1, coords)
-                print("bench:", len(coords))
-                # cv2.imshow("b", bench)
+                # get champs from store
+                store = self.take_picture(store_champ_monitor, False)
+                # cv2.imshow("b", store)
                 # if cv2.waitKey(25) & 0xFF == ord("q"):
                 #     cv2.destroyAllWindows()
                 #     break
-
-                # gets name from the store
-                # None is when no champ is found
-                # is kinda slow for 1 cycle
-                # might replace with average color value
-                store = self.take_picture(store_champ_monitor, False)
-
-                # check if store has been updated:
-                if self.are_same(store, last_store_image):
-                    last_store_image = store
-                    for i in range(5):
-                        x = 168 * i
-                        one_store_name_cell = store[:, x:x + 60]
-
-                        # VERY SLOW
-                        text = pytesseract.image_to_string(one_store_name_cell, config='--psm 8 --oem 3 -c tessedit_char_whitelist='
-                                                                             'ABDGHIJKLMNPRSTUVWYZabcdeghijklmnoprstuvwxyz')
-                        name = self.text_to_name(max(text.splitlines()))
-                        print(name)
-                        # cv2.imshow("b", one_store_name_cell)
-                        # if cv2.waitKey(25) & 0xFF == ord("q"):
-                        #     cv2.destroyAllWindows()
-                        #     break
-                # else:
-                #     print("read")
-
-            cv2.imshow("b", half_img)
-            if cv2.waitKey(25) & 0xFF == ord("q"):
-                cv2.destroyAllWindows()
-                break
+                champions_in_store = self.match_champ(store)
+                # print("champs in store", champions_in_store)
+                for champ in champions_in_store:
+                    if champ in champ_dict:
+                        champ_dict[champ] += 1
+                    else:
+                        champ_dict[champ] = 1
+            print(champ_dict)
+            if show:
+                cv2.imshow("b", half_img)
+                if cv2.waitKey(25) & 0xFF == ord("q"):
+                    cv2.destroyAllWindows()
+                    break
             print("fps:", 1 / (time.time() - last_time))
             print("time:", time.time() - last_time)
-            time.sleep(0.5)
+            time.sleep(0.01)
         pass
 
 
@@ -511,4 +555,4 @@ if __name__ == '__main__':
     s = Screen()
     c = Control()
     # s.main_reader(False, c)
-    s.main(False)
+    s.main(False, show=False)

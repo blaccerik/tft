@@ -149,8 +149,7 @@ class App:
         top5 = self.p.predict_main(dicta,
                             lista,
                             5,
-                            {},
-                            [])
+                            many=5)
         for i in self.p.s.comps:
             print(i, self.p.s.comps[i]["name"])
         same_length(top5)

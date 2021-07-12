@@ -139,39 +139,18 @@ class Predict:
             size += self.find_level(nr, champ)
         return size
 
-    def predict_main(self, champions_in_game: dict,
+    def predict_main(self, champions: dict,
                      items: list,
                      size_of_game_queue: int,
-                     champions_on_bench: dict,
-                     champs_in_store: list,
                      many=5):
         """
 
-        :param champions_in_game: champion ids [1,5,1,1,4,0]
+        :param champions: champion ids
         :param items: item ids
         :param size_of_game_queue:
-        :param champions_on_bench:
-        :param champs_in_store:
         :return:
         """
         top5 = []
-        if 0 in champions_in_game:
-            del champions_in_game[0]
-        if 0 in champions_on_bench:
-            del champions_on_bench[0]
-
-        # join total champions owned into 1 dict
-        champions = dict(champions_in_game)
-        for i in champions_on_bench:
-            if i in champions:
-                champions[i] += champions_on_bench[i]
-            else:
-                champions[i] = champions_on_bench[i]
-        for i in champs_in_store:
-            if i in champions:
-                champions[i] += 1
-            else:
-                champions[i] = 1
 
         size = len(champions)
         if size == 0:
