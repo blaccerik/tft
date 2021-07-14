@@ -2,28 +2,13 @@ import cv2
 import numpy as np
 import mss
 import time
-import pyautogui
+# import pyautogui
 
 def main():
-    npTmp = np.random.random((1024, 1024)).astype(np.float32)
-
-    npMat1 = np.stack([npTmp, npTmp], axis=2)
-    npMat2 = npMat1
-
-    cuMat1 = cv2.cuda_GpuMat()
-    cuMat2 = cv2.cuda_GpuMat()
-    cuMat1.upload(npMat1)
-    cuMat2.upload(npMat2)
-    start_time = time.time()
-    cv2.cuda.gemm(cuMat1, cuMat2, 1, None, 0, None, 1)
-    print("CUDA --- %s seconds ---" % (time.time() - start_time))
-    start_time = time.time()
-
-    cv2.gemm(npMat1, npMat2, 1, None, 0, None, 1)
-    print("CPU --- %s seconds ---" % (time.time() - start_time))
-    return
 
     net = cv2.dnn.readNet("network/yolov3_training_last.weights", "network/yolov3_testing.cfg")
+    net.setPreferableBackend(cv2.dnn.DNN_BACKEND_CUDA)
+    net.setPreferableTarget(cv2.dnn.DNN_TARGET_CUDA)
 
     with open("network/classes.txt", "r") as f:
         classes = f.read().splitlines()
@@ -100,6 +85,7 @@ def main():
         if cv2.waitKey(25) & 0xFF == ord("q"):
             cv2.destroyAllWindows()
             break
+        print("fps:", 1 / (time.time() - last_time))
         print("time:", time.time() - last_time)
         time.sleep(0.01)
 

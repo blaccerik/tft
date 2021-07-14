@@ -2,6 +2,7 @@ import mss
 import mss.tools
 import numpy as np
 import cv2
+from cv2 import dnn
 import time
 import difflib
 
@@ -13,6 +14,7 @@ from Champions import Champions
 from static_data import Static
 from Trait_to_champion import Calculator
 from Items import Items
+from predict_best_comp import Predict, same_length
 
 class Screen:
     def __init__(self):
@@ -32,12 +34,17 @@ class Screen:
         self.load_champions(c.get_champion_list(False))
         i = Items()
         self.load_items(i.get_item_list(self.color))
+        self.p = Predict(self.s)
+
 
         weights = "C:/Users/theerik/PycharmProjects/tft/data/images/network/yolov3_training_last.weights"
         cfg = "C:/Users/theerik/PycharmProjects/tft/data/images/network/yolov3_testing.cfg"
         classes_link = "C:/Users/theerik/PycharmProjects/tft/data/images/network/classes.txt"
-
+        # read model
         self.net = cv2.dnn.readNet(weights, cfg)
+        # activate cuda
+        self.net.setPreferableBackend(cv2.dnn.DNN_BACKEND_CUDA)
+        self.net.setPreferableTarget(cv2.dnn.DNN_TARGET_CUDA)
 
         with open(classes_link, "r") as f:
             self.classes = f.read().splitlines()
@@ -429,7 +436,6 @@ class Screen:
 
 
     def main(self, control, show=False):
-
         acc = 0.10
         store_champ_monitor = {"top": 790, "left": 320, "width": 831, "height": 45}
         my_number = None
@@ -437,9 +443,16 @@ class Screen:
         start_y = 170
         shift = 63
 
+        # prevent cold start
+        test_img = self.take_picture({"top": 790, "left": 320, "width": 831, "height": 45}, self.color)
+        blob = dnn.blobFromImage(test_img, 1 / 255, (416, 416), (0, 0, 0), swapRB=True, crop=False)
+        self.net.setInput(blob)
+        output_layers_names = self.net.getUnconnectedOutLayersNames()
+        self.net.forward(output_layers_names)
 
+        total_time = time.time()
         # get data about all players
-        for player_number in range(8):
+        for player_number in range(1):
             # for fps
             last_time = time.time()
             control.click_on_champ(start_x, start_y + shift * player_number)
@@ -460,7 +473,7 @@ class Screen:
             # take picture of the champions
             half_img = self.take_picture(count_champ_monitor, self.color)
 
-            # find number of champs
+            # # find number of champs
             badge_coords = []
             self.match_badge(half_img, 0, badge_coords)
             self.match_badge(half_img, 2, badge_coords)
@@ -469,9 +482,10 @@ class Screen:
             # take picture with yolo
             height, width, _ = half_img.shape
             # 416 is default size, do not change
-            blob = cv2.dnn.blobFromImage(half_img, 1 / 255, (416, 416), (0, 0, 0), swapRB=True, crop=False)
+            blob = dnn.blobFromImage(half_img, 1 / 255, (416, 416), (0, 0, 0), swapRB=True, crop=False)
             self.net.setInput(blob)
             output_layers_names = self.net.getUnconnectedOutLayersNames()
+            # print(output_layers_names)
             layerOutputs = self.net.forward(output_layers_names)
             boxes = []
             confs = []
@@ -495,7 +509,7 @@ class Screen:
 
             # 0.4 default
             # sometimes error
-            indexes = cv2.dnn.NMSBoxes(boxes, confs, acc, 0.4)
+            indexes = dnn.NMSBoxes(boxes, confs, acc, 0.4)
 
             # for boxes
             if show:
@@ -530,14 +544,16 @@ class Screen:
                 else:
                     champ_dict[champ] = 1
             print(champ_dict)
+            top5 = self.p.predict_main(champ_dict, [], 5)
+            same_length(top5)
             if show:
                 cv2.imshow("b", half_img)
                 if cv2.waitKey(25) & 0xFF == ord("q"):
                     cv2.destroyAllWindows()
                     break
-            print("fps:", 1 / (time.time() - last_time))
-            print("time:", time.time() - last_time)
+            print("time:",time.time() - last_time)
             time.sleep(0.01)
+        print("total time:", time.time() - total_time)
         print(my_number)
         pass
 
@@ -545,8 +561,8 @@ class Screen:
 if __name__ == '__main__':
     #
     # mss.mss().shot(output="traits8.png")
-    time.sleep(2)
+    time.sleep(1)
     s = Screen()
     c = Control()
     # s.main_reader(False, c)
-    s.main(c, show=True)
+    s.main(c, show=False)

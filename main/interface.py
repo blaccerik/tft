@@ -1,11 +1,14 @@
 import tkinter as tk
 from tkinter import ttk
 from predict_best_comp import Predict
+from static_data import Static
 
 class App:
     def __init__(self, root):
 
-        p = Predict()
+        s = Static()
+
+        p = Predict(s)
 
         # self.id_to_champ = p.id_to_champ
         # self.id_to_item = p.id_to_item

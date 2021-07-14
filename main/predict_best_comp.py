@@ -1,8 +1,8 @@
 from static_data import Static, item_to_parts
 
 class Predict:
-    def __init__(self):
-        self.s = Static()
+    def __init__(self, static):
+        self.s = static
         # self.s.comps
         # print(self.comps.keys())
         # self.champion_to_traits = self.s.champion_to_traits
@@ -24,6 +24,14 @@ class Predict:
         extra_items = comp_dict["extra_items"].copy()
         extra_parts = comp_dict["extra_parts"].copy()
         extra_parts_size = len(extra_items) * 2
+
+        # if no items are presented
+        # 1 comp has that
+        if core_parts_size == 0:
+            core_parts_size = 1
+        if extra_parts_size == 0:
+            extra_parts_size = 1
+
 
         # keep track of the keys(champs) that were overlapping
         # use it in calculation and factor in level
@@ -56,7 +64,6 @@ class Predict:
         extra_p = 0
         # first check items and then parts so
         # it would not double count
-
 
         # print("----")
         # print("items", items)
@@ -106,7 +113,7 @@ class Predict:
         lvl 3 = 2
         :return:
         """
-        tier = self.s.id_to_tier[id]
+        tier = self.s.champ_id_to_tier[id]
         if tier < 2:
             x = 0.8
         elif tier == 3:
@@ -196,7 +203,16 @@ class Predict:
             #          0.7 * (low_i / size_i) + \
             #          0.7 * high_p / (2 * size_i) + \
             #          0.5 * (low_p / (2 * size_i))
-            score2 = core_i / (core_parts_size * 2) + \
+
+            # print("-----")
+            # print(core_i)
+            # print(core_p)
+            # print(core_parts_size)
+            # print(extra_i)
+            # print(extra_p)
+            # print(extra_parts_size)
+
+            score2 = 1 * core_i / (core_parts_size * 2) + \
                      0.8 * extra_i / (extra_parts_size * 2) + \
                      0.95 * core_p / (core_parts_size) + \
                      0.8 * extra_p / (extra_parts_size)
@@ -230,21 +246,17 @@ def same_length(top5):
 
 
 if __name__ == '__main__':
-    p = Predict()
-    p.s.number_to_names(
-        (26, 8, 44, 24, 48, 1)
-    )
-    p.s.number_to_items(
-        (1009, 9, 3, 5)
-    )
+    s = Static()
+    p = Predict(s)
+    # p.s.number_to_names(
+    #     (1,)
+    # )
 
     top5 = p.predict_main(
         # {26: 2, 44: 1, 24: 1, 48: 1, 1: 1},
-        {},
-        [2, 2, 2, 2],
+        {1: 1},
+        [],
         # (1009, 9, 3, 5, 2, 5, 1005, 1034),
         5,
-        {},
-        []
     )
     same_length(top5)

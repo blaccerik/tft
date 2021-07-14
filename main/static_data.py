@@ -12,7 +12,7 @@ class Static:
         self.id_to_champ = {0: "none"}
         self.id_to_item = {}
         self.item_to_id = {}
-        self.id_to_tier = {}
+        self.champ_id_to_tier = {}
         self.read("C:/Users/theerik/PycharmProjects/tft/data/champions.json")
         self.read_items("C:/Users/theerik/PycharmProjects/tft/data/items.json")
         self.read_traits("C:/Users/theerik/PycharmProjects/tft/data/traits.json")
@@ -25,7 +25,7 @@ class Static:
                 p = data[nr]
                 name = p['championId'][5:].lower()
                 tier = p["cost"] - 1
-                self.id_to_tier[nr + 1] = tier
+                self.champ_id_to_tier[nr + 1] = tier
                 self.champ_to_id[name] = nr + 1
                 self.id_to_champ[nr + 1] = name
 
@@ -41,7 +41,7 @@ class Static:
         with open(link) as json_file:
             data = json.load(json_file)
             for p in data:
-                name = p["name"].lower()
+                name = p["name"].lower().replace(" ", "").replace("'", "")
                 id = p["id"]
                 self.item_to_id[name] = id
                 self.id_to_item[id] = name
@@ -94,6 +94,7 @@ class Static:
                 # figure out the items
                 needed_items = set()
                 for item in items:
+                    item = item.replace(" ", "").replace("'", "")
                     a = self.item_to_id[item]
                     # check if a is item or part
                     # if in the future they add more parts then
@@ -111,36 +112,44 @@ class Static:
                 needed_champs = []
                 for obj in lista:
                     # print(self.champ_to_id)
-                    champ = obj.replace(" ", "")
+                    champ = obj.replace(" ", "").replace("'", "")
                     if champ in self.champ_to_id:
                         needed_champs.append(self.champ_to_id[champ])
-                    else:
+                    elif champ in self.item_to_id:
                         # might change if i want items to overlap
-                        a = self.item_to_id[obj]
+                        a = self.item_to_id[champ]
                         # if a not in needed_items:
                         extra_items.append(a)
                         item_to_parts(a, extra_parts)
-                # print(max(self.comps) + 1)
-                # print(needed_items)
-                # print(extra_items)
+                    else:
+                        print("error", champ)
                 for item in needed_items:
                     if item in extra_items:
                         extra_items.remove(item)
                 for part in needed_parts:
-                    extra_parts.remove(part)
+                    if part in extra_parts:
+                        extra_parts.remove(part)
 
                 # figure out rest of the champs
                 early_champs = []
                 extra_champs = []
                 # might need to change if i want champs to overlap
                 for champ in early:
-                    a = self.champ_to_id[champ.replace(" ", "")]
-                    if a not in needed_champs:
-                        early_champs.append(a)
+                    champ = champ.replace(" ", "")
+                    if champ in self.champ_to_id:
+                        a = self.champ_to_id[champ]
+                        if a not in needed_champs:
+                            early_champs.append(a)
+                    else:
+                        print("error", champ)
                 for champ in options:
-                    a = self.champ_to_id[champ.replace(" ", "")]
-                    if a not in needed_champs and a not in early_champs:
-                        extra_champs.append(a)
+                    champ = champ.replace(" ", "")
+                    if champ in self.champ_to_id:
+                        a = self.champ_to_id[champ]
+                        if a not in needed_champs and a not in early_champs:
+                            extra_champs.append(a)
+                    else:
+                        print("error", champ)
 
                 key = max(self.comps) + 1
                 self.comps[key] = {
@@ -153,7 +162,6 @@ class Static:
                     "extra_items": extra_items,
                     "extra_parts": extra_parts,
                 }
-        # print(self.comps)
 
     def translate_name_to_id(self, input):
         lista = []
@@ -218,11 +226,24 @@ def item_to_parts(item, needed_parts):
 if __name__ == '__main__':
     s = Static()
     # s.start()
-    s.only_letters()
+    # s.only_letters()
+
+
+    # print()
     # print(s.champ_to_id)
     # print(s.id_to_champ)
     # print(s.champion_to_traits)
     # print(s.trait_to_champions)
+    # print(s.item_to_id)
+    # print(s.id_to_item)
+    # print(s.champ_id_to_tier)
+    # print(s.id_to_item)
+    # print(s.trait_to_sets)
+
+    for i in s.comps:
+        a = s.comps[i]
+        print(a)
+
     # s.read_comps("C:/Users/theerik/PycharmProjects/tft/data/comps.json")
     # s.number_to_names(
     #     (19, 9, 41, 31, 12, 8, 0, 0, 0, 0)
