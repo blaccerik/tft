@@ -434,125 +434,139 @@ class Screen:
                 dicta[champ_name] = value
         return dicta
 
-
-    def main(self, control, show=False):
-        acc = 0.10
+    def cather_data(self, show=False):
         store_champ_monitor = {"top": 790, "left": 320, "width": 831, "height": 45}
+        me = False
+        acc = 0.10
+
+        # get champs from store
+        # if cant get data from store that means its other player
+        store = self.take_picture(store_champ_monitor, False)
+        champions_in_store = self.match_champ(store)
+
+        if len(champions_in_store) > 0:
+            me = True
+        if me:
+            count_champ_monitor = {"top": 230, "left": 210, "width": 900, "height": 450}
+        else:
+            count_champ_monitor = {"top": 25, "left": 355, "width": 690, "height": 315}
+
+        # take picture of the champions
+        half_img = self.take_picture(count_champ_monitor, self.color)
+
+        # # find number of champs
+        badge_coords = []
+        self.match_badge(half_img, 0, badge_coords)
+        self.match_badge(half_img, 2, badge_coords)
+        self.match_badge(half_img, 1, badge_coords)
+
+        # take picture with yolo
+        height, width, _ = half_img.shape
+        # 416 is default size, do not change
+        blob = dnn.blobFromImage(half_img, 1 / 255, (416, 416), (0, 0, 0), swapRB=True, crop=False)
+        self.net.setInput(blob)
+        output_layers_names = self.net.getUnconnectedOutLayersNames()
+        # print(output_layers_names)
+        layerOutputs = self.net.forward(output_layers_names)
+        boxes = []
+        confs = []
+        class_ids = []
+        # detect
+        for output in layerOutputs:
+            for detection in output:
+                scores = detection[5:]
+                class_id = np.argmax(scores)
+                conf = scores[class_id]
+                if conf > acc:
+                    cenx = int(detection[0] * width)
+                    ceny = int(detection[1] * height)
+                    w = int(detection[2] * width)
+                    h = int(detection[3] * height)
+                    x = int(cenx - w / 2)
+                    y = int(ceny - h / 2)
+                    boxes.append([x, y, w, h])
+                    confs.append((float(conf)))
+                    class_ids.append(class_id)
+
+        # 0.4 default
+        # sometimes error
+        indexes = dnn.NMSBoxes(boxes, confs, acc, 0.4)
+
+        # for boxes
+        if show:
+            font = cv2.FONT_HERSHEY_PLAIN
+            colors = np.random.uniform(0, 255, size=(len(boxes), 3))
+
+        champions_coords = []
+        if len(indexes) > 0:
+            for i in indexes.flatten():
+                label = str(self.classes[class_ids[i]])
+                x, y, w, h = boxes[i]
+                champions_coords.append((label, x, y))
+                # show boxes
+                if show:
+                    confidence = str(round(confs[i], 2))
+                    color = colors[i]
+                    cv2.rectangle(half_img, (x, y), (x + w, y + h), color, 2)
+                    cv2.putText(half_img, label + " " + confidence, (x, y + 20), font, 2, (255, 255, 255), 2)
+
+        # show badge locations
+        if show:
+            for coord in badge_coords:
+                x = coord[1]
+                y = coord[2]
+                cv2.rectangle(half_img, (x, y), (x + 60, y + 60), (255, 255, 255), 1)
+
+        # create champ dict
+        champ_dict = self.get_tier_dict(champions_coords, badge_coords)
+
+        # add champs from store
+        for champ in champions_in_store:
+            if champ in champ_dict:
+                champ_dict[champ] += 1
+            else:
+                champ_dict[champ] = 1
+        if show:
+            cv2.imshow("b", half_img)
+            if cv2.waitKey(25) & 0xFF == ord("q"):
+                cv2.destroyAllWindows()
+                return
+        return me, champ_dict
+
+
+    def main(self, control):
         my_number = None
         start_x = 1400
         start_y = 170
         shift = 63
 
-        # prevent cold start
-        test_img = self.take_picture({"top": 790, "left": 320, "width": 831, "height": 45}, self.color)
-        blob = dnn.blobFromImage(test_img, 1 / 255, (416, 416), (0, 0, 0), swapRB=True, crop=False)
-        self.net.setInput(blob)
-        output_layers_names = self.net.getUnconnectedOutLayersNames()
-        self.net.forward(output_layers_names)
+        # # prevent cold start
+        # test_img = self.take_picture({"top": 790, "left": 320, "width": 831, "height": 45}, self.color)
+        # blob = dnn.blobFromImage(test_img, 1 / 255, (416, 416), (0, 0, 0), swapRB=True, crop=False)
+        # self.net.setInput(blob)
+        # output_layers_names = self.net.getUnconnectedOutLayersNames()
+        # self.net.forward(output_layers_names)
 
         total_time = time.time()
         # get data about all players
-        for player_number in range(1):
+        for player_number in range(8):
             # for fps
             last_time = time.time()
+
+            # move to place
             control.click_on_champ(start_x, start_y + shift * player_number)
 
-            me = False
-            # get champs from store
-            # if cant get data from store that means its other player
-            store = self.take_picture(store_champ_monitor, False)
-            champions_in_store = self.match_champ(store)
-            if len(champions_in_store) > 0:
-                my_number = player_number
-                me = True
+            # todo check if player is alive
+
+            # get champions
+            me, champ_dict = self.cather_data()
             if me:
-                count_champ_monitor = {"top": 230, "left": 210, "width": 900, "height": 450}
-            else:
-                count_champ_monitor = {"top": 25, "left": 355, "width": 690, "height": 315}
+                my_number = player_number
 
-            # take picture of the champions
-            half_img = self.take_picture(count_champ_monitor, self.color)
-
-            # # find number of champs
-            badge_coords = []
-            self.match_badge(half_img, 0, badge_coords)
-            self.match_badge(half_img, 2, badge_coords)
-            self.match_badge(half_img, 1, badge_coords)
-
-            # take picture with yolo
-            height, width, _ = half_img.shape
-            # 416 is default size, do not change
-            blob = dnn.blobFromImage(half_img, 1 / 255, (416, 416), (0, 0, 0), swapRB=True, crop=False)
-            self.net.setInput(blob)
-            output_layers_names = self.net.getUnconnectedOutLayersNames()
-            # print(output_layers_names)
-            layerOutputs = self.net.forward(output_layers_names)
-            boxes = []
-            confs = []
-            class_ids = []
-            # detect
-            for output in layerOutputs:
-                for detection in output:
-                    scores = detection[5:]
-                    class_id = np.argmax(scores)
-                    conf = scores[class_id]
-                    if conf > acc:
-                        cenx = int(detection[0] * width)
-                        ceny = int(detection[1] * height)
-                        w = int(detection[2] * width)
-                        h = int(detection[3] * height)
-                        x = int(cenx - w / 2)
-                        y = int(ceny - h / 2)
-                        boxes.append([x, y, w, h])
-                        confs.append((float(conf)))
-                        class_ids.append(class_id)
-
-            # 0.4 default
-            # sometimes error
-            indexes = dnn.NMSBoxes(boxes, confs, acc, 0.4)
-
-            # for boxes
-            if show:
-                font = cv2.FONT_HERSHEY_PLAIN
-                colors = np.random.uniform(0, 255, size=(len(boxes), 3))
-
-            champions_coords = []
-            if len(indexes) > 0:
-                for i in indexes.flatten():
-                    label = str(self.classes[class_ids[i]])
-                    x, y, w, h = boxes[i]
-                    champions_coords.append((label, x, y))
-                    # show boxes
-                    if show:
-                        confidence = str(round(confs[i], 2))
-                        color = colors[i]
-                        cv2.rectangle(half_img, (x, y), (x + w, y + h), color, 2)
-                        cv2.putText(half_img, label + " " + confidence, (x, y + 20), font, 2, (255, 255, 255), 2)
-
-            # show badge locations
-            if show:
-                for coord in badge_coords:
-                    x = coord[1]
-                    y = coord[2]
-                    cv2.rectangle(half_img, (x, y), (x + 60, y + 60), (255, 255, 255), 1)
-
-            # create champ dict
-            champ_dict = self.get_tier_dict(champions_coords, badge_coords)
-            for champ in champions_in_store:
-                if champ in champ_dict:
-                    champ_dict[champ] += 1
-                else:
-                    champ_dict[champ] = 1
-            print(champ_dict)
+            # predict
             top5 = self.p.predict_main(champ_dict, [], 5)
             same_length(top5)
-            if show:
-                cv2.imshow("b", half_img)
-                if cv2.waitKey(25) & 0xFF == ord("q"):
-                    cv2.destroyAllWindows()
-                    break
-            print("time:",time.time() - last_time)
-            time.sleep(0.01)
+            print("time:", time.time() - last_time)
         print("total time:", time.time() - total_time)
         print(my_number)
         pass
@@ -565,4 +579,4 @@ if __name__ == '__main__':
     s = Screen()
     c = Control()
     # s.main_reader(False, c)
-    s.main(c, show=False)
+    s.main(c)

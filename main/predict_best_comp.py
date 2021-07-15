@@ -229,7 +229,7 @@ class Predict:
         return top5
 
 def same_length(top5):
-    print("score key cs   ss   es   s ci cp ei ep si")
+    print("score key cs   ss   es   s ci cp ei ep is")
     for top in top5:
         scr = "{:2.3f}".format(top[0])
         key = "{:2}".format(top[1])

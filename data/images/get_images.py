@@ -8,7 +8,7 @@ from PIL import Image
 def main():
     time.sleep(2)
     print("-------")
-    for i in range(1):
+    for i in range(2):
         nr = int(time.time() * 100)
         name = f"{nr}.png"
         mss.mss().shot(output=name)
