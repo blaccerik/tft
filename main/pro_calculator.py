@@ -5,7 +5,7 @@ from static_data import Static
 class Calculator:
     def __init__(self, link_to_json, link_to_csv):
         s = Static()
-        s.read(link_to_json)
+        s.read_champions(link_to_json)
         self.champion_to_traits = s.champion_to_traits
         self.trait_to_champions = s.trait_to_champions
         self.champ_to_id = s.champ_to_id

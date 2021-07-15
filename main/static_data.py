@@ -13,29 +13,45 @@ class Static:
         self.id_to_item = {}
         self.item_to_id = {}
         self.champ_id_to_tier = {}
-        self.read("C:/Users/theerik/PycharmProjects/tft/data/champions.json")
+        # champ -> id
+        # id -> champ
+        # id -> tier
+        # id -> traits
+        # trait -> id
+        self.read_champions("C:/Users/theerik/PycharmProjects/tft/data/champions.json")
+
+        # item -> id
+        # id -> item
         self.read_items("C:/Users/theerik/PycharmProjects/tft/data/items.json")
+
+        # trait -> sets : ranger: [2,4] -> ranger needs 2 units for 1st tier and 4 for 2nd
         self.read_traits("C:/Users/theerik/PycharmProjects/tft/data/traits.json")
+
+        # read traits from tftactics json file
+        # translate them to proper data like champs, items and parts
         self.read_comps_tftactics("C:/Users/theerik/PycharmProjects/tft/data/comps_tactics.json", only_s=False)
 
-    def read(self, link):
+    def read_champions(self, link):
         with open(link) as json_file:
             data = json.load(json_file)
             for nr in range(len(data)):
                 p = data[nr]
                 name = p['championId'][5:].lower()
                 tier = p["cost"] - 1
-                self.champ_id_to_tier[nr + 1] = tier
-                self.champ_to_id[name] = nr + 1
-                self.id_to_champ[nr + 1] = name
+
+                champ_id = nr + 1
+
+                self.champ_id_to_tier[champ_id] = tier
+                self.champ_to_id[name] = champ_id
+                self.id_to_champ[champ_id] = name
 
                 traits = list(map(lambda x: x[5:].lower(), p['traits']))
-                self.champion_to_traits[name] = traits
+                self.champion_to_traits[champ_id] = traits
                 for i in traits:
                     if i in self.trait_to_champions:
-                        self.trait_to_champions[i].append(name)
+                        self.trait_to_champions[i].append(champ_id)
                     else:
-                        self.trait_to_champions[i] = [name]
+                        self.trait_to_champions[i] = [champ_id]
 
     def read_items(self, link):
         with open(link) as json_file:
@@ -239,7 +255,6 @@ if __name__ == '__main__':
     # print(s.champ_id_to_tier)
     # print(s.id_to_item)
     # print(s.trait_to_sets)
-
     for i in s.comps:
         a = s.comps[i]
         print(a)

@@ -148,7 +148,7 @@ class Predict:
 
     def predict_main(self, champions: dict,
                      items: list,
-                     size_of_game_queue: int,
+                     other_comps={},
                      many=5):
         """
 
@@ -181,6 +181,7 @@ class Predict:
             core_i, core_p, core_parts_size, \
             extra_i, extra_p, extra_parts_size = self.get_same_items_and_champs(champions, items, comp_dict)
 
+            # print("-----.")
             # print(core_count, start_count, extra_count)
             # print(core_i, core_p, core_parts_size)
             # print(extra_i, extra_p, extra_parts_size)
@@ -191,33 +192,15 @@ class Predict:
             start_size = self.find_size(start_count, champions)
             extra_size = self.find_size(extra_count, champions)
 
-            score1 = core_size / size + 0.8 * start_size / size + 0.7 * extra_size / size
+            if key in other_comps:
+                nerf_level = other_comps[key]
+            else:
+                nerf_level = 0
 
+            score = self.find_score_for_comp(core_size, start_size, extra_size, size,
+                            core_i, extra_i, core_p, extra_p, core_parts_size, extra_parts_size,
+                            tier, nerf_level)
 
-            # score1 = high / size + \
-            #         0.8 * low / (size + len(start_champs)) + \
-            #         0.7 * med / (size + len(extra_champs))
-
-            # items
-            # score2 = high_i / size_i + \
-            #          0.7 * (low_i / size_i) + \
-            #          0.7 * high_p / (2 * size_i) + \
-            #          0.5 * (low_p / (2 * size_i))
-
-            # print("-----")
-            # print(core_i)
-            # print(core_p)
-            # print(core_parts_size)
-            # print(extra_i)
-            # print(extra_p)
-            # print(extra_parts_size)
-
-            score2 = 1 * core_i / (core_parts_size * 2) + \
-                     0.8 * extra_i / (extra_parts_size * 2) + \
-                     0.95 * core_p / (core_parts_size) + \
-                     0.8 * extra_p / (extra_parts_size)
-
-            score = tier * (1.0 * score1 + 1.0 * score2 + 0.001)
             top5.append((round(score, 3), key, core_size, start_size, extra_size, size,
                          core_i, core_p, extra_i, extra_p, size_i))
             top5.sort(key=lambda x: x[0], reverse=True)
@@ -227,6 +210,32 @@ class Predict:
             # info
             # print(key, name)
         return top5
+
+    def find_score_for_comp(self, core_size, start_size, extra_size, size,
+                            core_i, extra_i, core_p, extra_p, core_parts_size, extra_parts_size,
+                            tier, nerf_level):
+        """
+        Find the %/score for comp on how likely its to be built
+        """
+        score1 = 1 * core_size / size + 0.8 * start_size / size + 0.7 * extra_size / size
+
+        # item score
+        score2 = 1 * core_i / (core_parts_size * 2) + \
+                 0.8 * extra_i / (extra_parts_size * 2) + \
+                 0.95 * core_p / (core_parts_size) + \
+                 0.8 * extra_p / (extra_parts_size)
+
+        score = tier * (1.0 * score1 + 1.0 * score2 + 0.001)
+
+        if nerf_level == 0:
+            final_score = 1 * score
+        elif nerf_level == 1:
+            final_score = 0.9 * score
+        elif nerf_level == 2:
+            final_score = 0.8 * score
+        else:
+            final_score = 0.5 * score
+        return final_score
 
 def same_length(top5):
     print("score key cs   ss   es   s ci cp ei ep is")
@@ -254,9 +263,9 @@ if __name__ == '__main__':
 
     top5 = p.predict_main(
         # {26: 2, 44: 1, 24: 1, 48: 1, 1: 1},
-        {1: 1},
+        {1: 3},
         [],
-        # (1009, 9, 3, 5, 2, 5, 1005, 1034),
-        5,
+        # {2:1}
     )
+    print(top5)
     same_length(top5)

@@ -28,7 +28,7 @@ def module2():
     rebuild_data = True
     if rebuild_data:
         e = EditData()
-        e.read("C:/Users/theerik/PycharmProjects/tft/data/champions.json")
+        e.read_champions("C:/Users/theerik/PycharmProjects/tft/data/champions.json")
         # at which point would like to start "accepting" data to training data
         # its better if date is recent or last patch as metas change and so does the best comp
         date = "23/06/2021"
