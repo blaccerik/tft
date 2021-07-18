@@ -5,15 +5,18 @@ import time
 # import pyautogui
 
 def main():
-
+    print("1")
     net = cv2.dnn.readNet("network/yolov3_training_last.weights", "network/yolov3_testing.cfg")
+    print("2")
     net.setPreferableBackend(cv2.dnn.DNN_BACKEND_CUDA)
     net.setPreferableTarget(cv2.dnn.DNN_TARGET_CUDA)
+    print("3")
+
 
     with open("network/classes.txt", "r") as f:
         classes = f.read().splitlines()
 
-    monitor = {"top": 50, "left": 300, "width": 900, "height": 300}
+    monitor = {"top": 25, "left": 355, "width": 690, "height": 315}
 
     while True:
         last_time = time.time()

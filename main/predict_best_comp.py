@@ -148,7 +148,7 @@ class Predict:
 
     def predict_main(self, champions: dict,
                      items: list,
-                     other_comps={},
+                     other_comps=None,
                      many=5):
         """
 
@@ -157,6 +157,8 @@ class Predict:
         :param size_of_game_queue:
         :return:
         """
+        if other_comps is None:
+            other_comps = {}
         top5 = []
 
         size = len(champions)
