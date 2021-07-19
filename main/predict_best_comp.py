@@ -16,6 +16,9 @@ class Predict:
         core_champs = comp_dict["needed_champs"].copy()
         start_champs = comp_dict["early_champs"].copy()
         extra_champs = comp_dict["extra_champs"].copy()
+        core_champs_size = len(core_champs)
+        start_champs_size = len(start_champs)
+        extra_champs_size = len(extra_champs)
 
         core_items = comp_dict["needed_items"].copy()
         core_parts = comp_dict["needed_parts"].copy()
@@ -102,6 +105,7 @@ class Predict:
                     extra_p += 1
 
         return core_count, start_count, extra_count, \
+               core_champs_size, start_champs_size, extra_champs_size, \
                core_i, core_p, core_parts_size, \
                extra_i, extra_p, extra_parts_size
 
@@ -180,6 +184,7 @@ class Predict:
             # print(comp_dict)
 
             core_count, start_count, extra_count, \
+            core_champs_size, start_champs_size, extra_champs_size, \
             core_i, core_p, core_parts_size, \
             extra_i, extra_p, extra_parts_size = self.get_same_items_and_champs(champions, items, comp_dict)
 
@@ -199,7 +204,8 @@ class Predict:
             else:
                 nerf_level = 0
 
-            score = self.find_score_for_comp(core_size, start_size, extra_size, size,
+            score = self.find_score_for_comp(core_size, start_size, extra_size,
+                            core_champs_size, start_champs_size, extra_champs_size, size,
                             core_i, extra_i, core_p, extra_p, core_parts_size, extra_parts_size,
                             tier, nerf_level)
 
@@ -213,17 +219,20 @@ class Predict:
             # print(key, name)
         return top5
 
-    def find_score_for_comp(self, core_size, start_size, extra_size, size,
+    def find_score_for_comp(self, core_size, start_size, extra_size,
+                            core_champs_size, start_champs_size, extra_champs_size, size,
                             core_i, extra_i, core_p, extra_p, core_parts_size, extra_parts_size,
                             tier, nerf_level):
         """
         Find the %/score for comp on how likely its to be built
         """
-        score1 = 1 * core_size / size + 0.8 * start_size / size + 0.7 * extra_size / size
+        score1 = 1 * core_size / (size) + \
+                 0.8 * start_size / (size) + \
+                 0.7 * extra_size / (size)
 
         # item score
         score2 = 1 * core_i / (core_parts_size * 2) + \
-                 0.8 * extra_i / (extra_parts_size * 2) + \
+                 0.9 * extra_i / (extra_parts_size * 2) + \
                  0.95 * core_p / (core_parts_size) + \
                  0.8 * extra_p / (extra_parts_size)
 

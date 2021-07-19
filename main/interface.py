@@ -1,15 +1,24 @@
 import difflib
 import tkinter as tk
-from tkinter import ttk
+import tkinter.font as tkFont
 from predict_best_comp import Predict
 from static_data import Static
+from screen import Screen
+from Control import Control
+import time
 
 class App:
+
     def __init__(self, root):
+
         self.s = Static()
         self.p = Predict(self.s)
-        # self.id_to_champ = p.id_to_champ
-        # self.id_to_item = p.id_to_item
+
+        # self.screen = Screen()
+        # self.c = Control()
+
+        self.id_to_champ = self.s.id_to_champ
+        self.id_to_item = self.s.id_to_item
         self.root = root
         # selectors
         frame = tk.Frame(self.root)
@@ -18,77 +27,168 @@ class App:
         self.selected_champ = "aatrox"
         self.configure_champion_selector(frame)
         # # items
-        self.selected_item = "none"
+        self.selected_item = "bfsword"
         self.configure_item_selector(frame)
 
         # all champions "stats"
-        self.frame_list = []
-        self.frame_dict = {}
+        self.frame_list_champions = []
+        self.frame_list_items = []
+        self.frame_dict_champions = {}
+        self.frame_dict_items = {}
         test = ["snow3", "mistyrose3"]
-        test2 = ["yellow", "green", "blue"]
-        self.player_dict = {}
+        self.champion_dict = {}
+        self.item_dict = {}
+        self.font = tkFont.Font(family="Lucida Grande", size=7)
+
         for i in range(1, 9):
             frame = tk.Frame(self.root)
             frame.grid(column=0, row=i)
 
-            frame1 = tk.Frame(frame, bg=test[i % 2], width=390, height=50)
+            frame1 = tk.Frame(frame, bg=test[i % 2], width=390, height=40)
             frame1.grid(column=0, row=0)
             frame1.grid_propagate(False)
             frame1.bind("<Button-3>", self.click_on_champion_frame)
-            self.frame_list.append(frame1)
-            # self.handle_1_row_champions(frame1, i)
+            self.frame_list_champions.append(frame1)
+            self.champion_dict[i - 1] = {}
+            self.frame_dict_champions[i - 1] = {}
 
-            frame2 = tk.Frame(frame, bg=test2[i % 3], width=300, height=50)
+            frame2 = tk.Frame(frame, bg=test[(i + 1) % 2], width=300, height=40)
             frame2.grid(column=1, row=0)
-            self.player_dict[i - 1] = {}
-            self.frame_dict[i - 1] = {}
+            frame2.grid_propagate(False)
+            frame2.bind("<Button-3>", self.click_on_item_frame)
+            self.frame_list_items.append(frame2)
+            self.item_dict[i - 1] = {}
+            self.frame_dict_items[i - 1] = {}
 
         # buttons
-        frame = tk.Frame(self.root, width=690, height=50, bg="pink")
-        frame.grid(column=0, row=10)
-        frame.grid_propagate(False)
-        button = tk.Button(frame, width=30, text="Result", command=self.press_button)
-        button.grid()
-        button.grid_propagate(False)
+        frame3 = tk.Frame(self.root, width=690, height=52, bg="pink")
+        frame3.grid(column=0, row=10)
+        frame3.grid_propagate(False)
+        button1 = tk.Button(frame3, width=30, text="Get Champs", command=self.press_button)
+        button1.grid(column=0, row=0)
+        # button1.grid_propagate(False)
+        button2 = tk.Button(frame3, width=30, text="Calculate", command=self.press_button2)
+        button2.grid(column=0, row=1)
+        # button2.grid_propagate(False)
+
+        frame4 = tk.Frame(self.root, width=690, height=240)
+        frame4.grid(column=0, row=11)
+        frame4.grid_propagate(False)
+        self.configure_screen(frame4)
 
     def press_button(self):
-        print(self.player_dict)
-        champ = self.selected_champ
-        self.selected_champ = "ashe"
-        self.add_champ_frame(0, 3)
-        self.selected_champ = champ
+        time.sleep(2)
+        me, champ_dict = self.screen.cather_data()
+        print(me)
+        print(champ_dict)
+        if me:
+            for chap in champ_dict:
+                amount = champ_dict[chap]
+                self.selected_champ = chap
+                self.add_champ_frame(0, def_value=amount)
+        # # full_dict = self.screen.main(self.c)
+        # # print(full_dict)
+        # for row in full_dict:
+        #     comp = full_dict[row]
+        #     for i in comp:
+        #         nr = comp[i]
+        #         self.selected_champ = i
+        #         self.add_champ_frame(0, def_value=nr)
+
+    def press_button2(self):
+        # for row in self.champion_dict:
+        #
+        row = 0
+        champs = {}
+        # champs
+        for i in self.champion_dict[row]:
+            nr = self.champion_dict[row][i]
+            if i in self.s.champ_to_id:
+                id = self.s.champ_to_id[i]
+                champs[id] = nr
+        items = []
+        # items
+        for i in self.item_dict[row]:
+            nr = self.item_dict[row][i]
+            id = self.s.item_to_id[i]
+            for _ in range(nr):
+                items.append(id)
+        print(champs)
+        print(items)
+        top5 = self.p.predict_main(champs,
+                                   items,
+                                   many=3)
+        for i in range(3):
+            frame = self.frame_list_screen[i]
+            key = top5[i][1]
+            self.add_comp_to_screen(key, frame, champs, items)
+            break
+        # for i in self.p.s.comps:
+        #     print(i, self.p.s.comps[i]["name"])
+        # same_length(top5)
 
     def click_on_champion_frame(self, event):
-
-        nr = self.frame_list.index(event.widget)
+        nr = self.frame_list_champions.index(event.widget)
         self.add_champ_frame(nr)
 
+    def click_on_item_frame(self, event):
+        nr = self.frame_list_items.index(event.widget)
+        self.add_item_frame(nr)
+
     def add_champ_frame(self, nr, def_value=1):
-        champ_dict = self.player_dict[nr]
+        champ_dict = self.champion_dict[nr]
         if self.selected_champ == "none":
             return
         elif self.selected_champ in champ_dict:
             return
 
         champ_dict[self.selected_champ] = def_value
-        frame = self.frame_list[nr]
+        frame = self.frame_list_champions[nr]
 
-        parent = tk.Frame(frame, width=30, height=50, bg="yellow")
+        parent = tk.Frame(frame, width=30, height=40, bg="blue")
         parent.grid(column=len(champ_dict), row=0)
         parent.pack_propagate(False)
 
-        frame2 = tk.Label(parent, bg="orange", text=self.selected_champ, width=4, padx=2, pady=5)
+        # frame2 = tk.Frame(parent, bg="orange", width=30, height=30)
+        frame2 = tk.Label(parent, bg="orange", text=self.selected_champ, padx=12, pady=9, bd=0, font=self.font, width=1)
+        frame2.grid(column=0, row=0, sticky="W")
+        frame2.bind("<Button-1>", self.left_click_champ)
+        frame2.bind("<Button-3>", self.right_click_champ)
+        #
+        label = tk.Label(parent, text=def_value, padx=12, pady=0, bd=0, font=self.font, width=1)
+        label.grid(column=0, row=1)
+        label.bind("<Button-1>", self.left_click_champ)
+        label.bind("<Button-3>", self.right_click_champ)
+        # label.grid_propagate(False)
+
+        self.frame_dict_champions[nr][parent] = self.selected_champ
+
+    def add_item_frame(self, nr, def_value=1):
+        item_dict = self.item_dict[nr]
+        if self.selected_item == "none":
+            return
+        elif self.selected_item in item_dict:
+            return
+
+        item_dict[self.selected_item] = def_value
+        frame = self.frame_list_items[nr]
+
+        parent = tk.Frame(frame, width=30, height=40, bg="yellow")
+        parent.grid(column=len(item_dict), row=0)
+        parent.pack_propagate(False)
+
+        frame2 = tk.Label(parent, bg="orange", text=self.selected_item, padx=12, pady=9, bd=0, font=self.font, width=1)
         frame2.grid(column=0, row=0, sticky="W")
         frame2.bind("<Button-1>", self.left_click_item)
         frame2.bind("<Button-3>", self.right_click_item)
         #
-        label = tk.Label(parent, text=def_value, padx=13)
+        label = tk.Label(parent, text=def_value, padx=12, pady=0, bd=0, font=self.font, width=1)
         label.grid(column=0, row=1)
         label.bind("<Button-1>", self.left_click_item)
         label.bind("<Button-3>", self.right_click_item)
-        # label.grid_propagate(False)
+        label.grid_propagate(False)
 
-        self.frame_dict[nr][parent] = self.selected_champ
+        self.frame_dict_items[nr][parent] = self.selected_item
 
         # name = parent._w
         # self.frame_dict[name] = {"count": 1, "obj": parent, "champ": self.selected_champ}
@@ -152,55 +252,89 @@ class App:
             self.selected_item = final[0]
         self.selected_item_text.set(self.selected_item)
 
-    def left_click_item(self, event: tk.Event):
-
-        nr = self.frame_list.index(event.widget.master.master)
+    def left_click_champ(self, event: tk.Event):
+        nr = self.frame_list_champions.index(event.widget.master.master)
         parent = event.widget.master
-        champ = self.frame_dict[nr][parent]
-        value = self.player_dict[nr][champ] - 1
+        champ = self.frame_dict_champions[nr][parent]
+        value = self.champion_dict[nr][champ] - 1
         if value == 0:
-            del self.player_dict[nr][champ]
-            del self.frame_dict[nr][parent]
+            del self.champion_dict[nr][champ]
+            del self.frame_dict_champions[nr][parent]
             parent.grid_forget()
             parent.destroy()
             n = 0
-            for frame in self.frame_dict[nr]:
+            for frame in self.frame_dict_champions[nr]:
                 frame.grid(column=n, row=0)
                 n += 1
                 # print(frame.gr)
         else:
             parent.children["!label2"]["text"] = value
-            self.player_dict[nr][champ] = value
+            self.champion_dict[nr][champ] = value
 
-    def right_click_item(self, event):
-        nr = self.frame_list.index(event.widget.master.master)
+    def right_click_champ(self, event):
+        nr = self.frame_list_champions.index(event.widget.master.master)
         parent = event.widget.master
-        champ = self.frame_dict[nr][parent]
-        value = self.player_dict[nr][champ] + 1
+        champ = self.frame_dict_champions[nr][parent]
+        value = self.champion_dict[nr][champ] + 1
         if value == 10:
             pass
         else:
             parent.children["!label2"]["text"] = value
-            self.player_dict[nr][champ] = value
+            self.champion_dict[nr][champ] = value
 
-    # def res(self):
-    #     lista = []
-    #     for i in self.item_list_values:
-    #         val = self.item_list_values[i]
-    #         id = val["id"]
-    #         value = val["value"]
-    #         for j in range(value):
-    #             lista.append(id)
-    #     dicta = {}
-    #     for i in range(len(self.champ_list_values)):
-    #         if self.champ_list_values[i]:
-    #             dicta[i] = 1
-    #     top5 = self.p.predict_main(dicta,
-    #                         lista,
-    #                         many=5)
-    #     for i in self.p.s.comps:
-    #         print(i, self.p.s.comps[i]["name"])
-    #     same_length(top5)
+    def left_click_item(self, event: tk.Event):
+
+        nr = self.frame_list_items.index(event.widget.master.master)
+        parent = event.widget.master
+        item = self.frame_dict_items[nr][parent]
+        value = self.item_dict[nr][item] - 1
+        if value == 0:
+            del self.item_dict[nr][item]
+            del self.frame_dict_items[nr][parent]
+            parent.grid_forget()
+            parent.destroy()
+            n = 0
+            for frame in self.frame_dict_items[nr]:
+                frame.grid(column=n, row=0)
+                n += 1
+        else:
+            parent.children["!label2"]["text"] = value
+            self.item_dict[nr][item] = value
+
+    def right_click_item(self, event):
+        nr = self.frame_list_items.index(event.widget.master.master)
+        parent = event.widget.master
+        item = self.frame_dict_items[nr][parent]
+        value = self.item_dict[nr][item] + 1
+        if value == 10:
+            pass
+        else:
+            parent.children["!label2"]["text"] = value
+            self.item_dict[nr][item] = value
+
+    def configure_screen(self, frame):
+        self.frame_dict_screen = {}
+        self.frame_list_screen = []
+        test = ["red", "blue"]
+        for i in range(3):
+            frame1 = tk.Frame(frame, bg=test[i % 2], width=690, height=80)
+            frame1.grid(column=0, row=i)
+            frame1.grid_propagate(False)
+            self.frame_list_screen.append(frame1)
+
+    def add_comp_to_screen(self, comp_key, frame, champs, items):
+        comp = self.s.comps[comp_key]
+        print(champs)
+        print(items)
+        print(comp)
+        needed_champs = comp["needed_champs"]
+        test = ["yellow", "orange"]
+        for i in range(len(needed_champs)):
+            frame1 = tk.Frame(frame, height=30, width=30, bg=test[i % 2])
+            frame1.grid(column=i, row=0)
+            frame1.grid_propagate(False)
+        pass
+
 
 
 def same_length(top5):

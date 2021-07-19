@@ -32,8 +32,6 @@ class Screen:
         self.load_items(i.get_item_list(self.color))
         self.p = Predict(self.s)
 
-        self.cold_start()
-
 
         weights = "C:/Users/theerik/PycharmProjects/tft/data/images/network/yolov3_training_last.weights"
         cfg = "C:/Users/theerik/PycharmProjects/tft/data/images/network/yolov3_testing.cfg"
@@ -46,6 +44,8 @@ class Screen:
 
         with open(classes_link, "r") as f:
             self.classes = f.read().splitlines()
+
+        self.cold_start()
 
     def load_templates(self, templates: list):
         self.bronze = templates[0]
@@ -289,8 +289,11 @@ class Screen:
         score_range = 0.9
         other_comps = {}
 
+        full_dict = {}
+
         total_time = time.time()
         # get data about all players
+        n = 0
         for player_number in range(8):
             # for fps
             last_time = time.time()
@@ -307,30 +310,37 @@ class Screen:
                 my_champ_dict = champ_dict
             else:
                 # predict for other player
-                top5 = self.p.predict_main(champ_dict, [], many=5)
-                best_score = None
-
-                # find the most likely comps
-                # and add them to dict to use later
-                for top in top5:
-                    score = top[0]
-                    comp_key = top[1]
-                    if best_score is None:
-                        best_score = score
-
-                    prod = score / best_score
-                    if prod > score_range:
-                        if comp_key in other_comps:
-                            other_comps += 1
-                        else:
-                            other_comps[comp_key] = 1
+                full_dict[n] = champ_dict
+                n += 1
+                # top5 = self.p.predict_main(champ_dict, [], many=5)
+                # best_score = None
+                #
+                # # find the most likely comps
+                # # and add them to dict to use later
+                # for top in top5:
+                #     score = top[0]
+                #     comp_key = top[1]
+                #     if best_score is None:
+                #         best_score = score
+                #
+                #     prod = score / best_score
+                #     if prod > score_range:
+                #         if comp_key in other_comps:
+                #             other_comps += 1
+                #         else:
+                #             other_comps[comp_key] = 1
             print("time:", time.time() - last_time)
-        # predict what you should build if you know what others are building
-        top5 = self.p.predict_main(my_champ_dict, [], other_comps=other_comps, many=5)
-        same_length(top5)
-        print("total time:", time.time() - total_time)
-        print(my_number)
-        pass
+
+        full_dict[8] = my_champ_dict
+        return full_dict
+        #
+        # # return my_champ_dict, other_comps
+        # # predict what you should build if you know what others are building
+        # top5 = self.p.predict_main(my_champ_dict, [], other_comps=other_comps, many=5)
+        # same_length(top5)
+        # print("total time:", time.time() - total_time)
+        # print(my_number)
+        # pass
 
 
 if __name__ == '__main__':

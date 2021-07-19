@@ -33,7 +33,7 @@ class WebScraper:
                 link2 = found[0]["href"]
                 link_final = link1 + link2
                 final_list.append(self.mobalytics2(link_final))
-        with open('comps.json', 'w') as outfile:
+        with open('comps_moba.json', 'w') as outfile:
             json.dump(final_list, outfile)
 
     def mobalytics2(self, link):
@@ -55,8 +55,43 @@ class WebScraper:
             found = row.find_all(['a'])[0]["href"]
             name = found[15:]
             mid.append(name)
-        print(final)
-        return final, early, mid
+        order = []
+        text = parsed_html.find("div", {"class": "css-1dtnjt5 e3an59i0"})  # .find_all('img', alt=True)
+        for row in text:
+            item = row.find('img')["alt"]
+            order.append(item)
+        text = parsed_html.find_all("p", {"class": "css-1pfen8i elh7uow5"})
+        all_items = []
+        # print(text)
+        for row in text:
+            item = row.text
+            all_items.append(item)
+
+        text = parsed_html.find("div", {"class": "e1ez9x2v0 css-13d97lt e83jq8m0"})
+        options = []
+        if text is not None:
+            text2 = text.find_all('img', alt=True)
+            for row in text2:
+                name = row["alt"]
+                options.append(name)
+
+        name = parsed_html.find("h1", {"class": "css-184yedx euxbs4g1"}).text
+
+        letter = parsed_html.find("div", {"class": "enl0bsh8 css-1thx1vt e4kvc90"}).find('img')["alt"]
+        # print(letter)
+
+        # print(final, early, mid)
+        # print(order, all_items)
+        dicta = {}
+        dicta["name"] = name
+        dicta["early"] = early
+        dicta["final"] = final
+        dicta["mid"] = mid
+        dicta["item order"] = order
+        dicta["all items"] = all_items
+        dicta["options"] = options
+        dicta["letter"] = letter
+        return dicta
 
     def tftactics(self, link):
         # cookies = dict(cookies_are='working')
@@ -151,5 +186,5 @@ class WebScraper:
 
 if __name__ == '__main__':
     w = WebScraper()
-    # w.read_link("https://app.mobalytics.gg/tft/team-comps")
-    w.read_link("https://tftactics.gg/tierlist/team-comps")
+    w.read_link("https://app.mobalytics.gg/tft/team-comps")
+    # w.read_link("https://tftactics.gg/tierlist/team-comps")

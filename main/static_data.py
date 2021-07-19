@@ -29,7 +29,9 @@ class Static:
 
         # read traits from tftactics json file
         # translate them to proper data like champs, items and parts
-        self.read_comps_tftactics("C:/Users/theerik/PycharmProjects/tft/data/comps_tactics.json", only_s=False)
+        # self.read_comps_tftactics("C:/Users/theerik/PycharmProjects/tft/data/comps_tactics.json", only_s=False)
+        # moba comps
+        self.read_comps_moba("C:/Users/theerik/PycharmProjects/tft/data/comps_moba.json", only_s=False)
 
     def read_champions(self, link):
         with open(link) as json_file:
@@ -54,13 +56,31 @@ class Static:
                         self.trait_to_champions[i] = [champ_id]
 
     def read_items(self, link):
+
+        self.shadow = {}
+
         with open(link) as json_file:
             data = json.load(json_file)
             for p in data:
-                name = p["name"].lower().replace(" ", "").replace("'", "")
+                name = p["name"].lower().replace(" ", "").replace("'", "").replace(".", "").replace("-", "")
                 id = p["id"]
-                self.item_to_id[name] = id
-                self.id_to_item[id] = name
+                # change here
+                if id < 1000:
+                    self.item_to_id[name] = id
+                    self.id_to_item[id] = name
+                self.shadow[name] = id
+        # adding some "custom" names to dict
+        self.item_to_id["sword"] = 1
+        self.item_to_id["bow"] = 2
+        self.item_to_id["rod"] = 3
+        self.item_to_id["tear"] = 4
+        self.item_to_id["vest"] = 5
+        self.item_to_id["cloak"] = 6
+        self.item_to_id["belt"] = 7
+        self.item_to_id["health"] = 7
+        self.item_to_id["gloves"] = 9
+
+
 
     def read_traits(self, link):
         with open(link) as json_file:
@@ -73,24 +93,6 @@ class Static:
                 for i in sets:
                     lista.append(i["min"])
                 self.trait_to_sets[name] = lista
-
-    # def read_comps(self, link):
-    #     with open(link) as json_file:
-    #         data = json.load(json_file)
-    #         for p in data:
-    #             lista = self.translate_name_to_id(p[0])
-    #             listb = self.translate_name_to_id(p[1])
-    #             listc = self.translate_name_to_id(p[2])
-    #             for i in lista:
-    #                 if i in listb:
-    #                     listb.remove(i)
-    #                 if i in listc:
-    #                     listc.remove(i)
-    #             for i in listb:
-    #                 if i in listc:
-    #                     listc.remove(i)
-    #             key = max(self.comps)
-    #             self.comps[key + 1] = (tuple(lista), tuple(listb), tuple(listc))
 
     def read_comps_tftactics(self, link, only_s=True):
         with open(link) as json_file:
@@ -110,7 +112,7 @@ class Static:
                 # figure out the items
                 needed_items = set()
                 for item in items:
-                    item = item.replace(" ", "").replace("'", "")
+                    item = item.replace(" ", "").replace("'", "").replace(".", "")
                     a = self.item_to_id[item]
                     # check if a is item or part
                     # if in the future they add more parts then
@@ -178,6 +180,116 @@ class Static:
                     "extra_items": extra_items,
                     "extra_parts": extra_parts,
                 }
+
+    def read_comps_moba(self, link, only_s=True):
+        with open(link) as json_file:
+            data = json.load(json_file)
+            for row in data:
+                # print(row)
+                name = row["name"].lower()
+                tier = row["letter"]
+                if only_s:
+                    if tier != "s":
+                        continue
+                name = tier + name
+
+                final = row["final"]
+                parts_order = row["item order"]
+                all_items = row["all items"]
+                options = row["options"]
+                mid = row["mid"]
+                early = row["early"]
+
+                # figure out champs
+                needed_champs = []
+                early_champs = []
+                extra_champs = []
+                for i in final:
+                    needed_champs.append(self.champ_to_id[i.replace("-", "").lower()])
+                for i in early:
+                    a = self.champ_to_id[i.replace("-", "").lower()]
+                    if a not in needed_champs:
+                        early_champs.append(a)
+                for i in mid:
+                    a = self.champ_to_id[i.replace("-", "").lower()]
+                    if a not in needed_champs and a not in early_champs:
+                        extra_champs.append(a)
+                for i in options:
+                    a = self.champ_to_id[i.replace("-", "").lower()]
+                    if a not in needed_champs and a not in early_champs and a not in extra_champs:
+                        extra_champs.append(a)
+                # figure out core the items
+                needed_items = []
+                needed_parts = []
+                extra_items = []
+                extra_parts = []
+                lista = []
+                for part in parts_order:
+                    part = part.replace("-", "").lower()
+                    id = self.item_to_id[part]
+                    lista.append(id)
+                listb = []
+                for item in all_items:
+                    # if error change text in json
+                    item = item.replace("-", "").replace(" ", "").replace("'", "").lower()
+                    if item == "handofvengence":
+                        item = "handofvengeance"
+                    elif item == "archdemonsstaff":
+                        item = "archdemonsstaffofimmortality"
+
+                    # change
+                    # id = self.item_to_id[item]
+                    id = self.shadow[item]
+
+                    # remove shadow trait
+                    id = id % 1000
+                    listb.append(id)
+                # core
+                self.find_core_items(lista, listb, needed_items)
+                for i in needed_items:
+                    listb.remove(i)
+                    a = i % 10
+                    b = i // 10
+                    needed_parts.append(a)
+                    needed_parts.append(b)
+                # extra
+                for i in listb:
+                    a = i % 10
+                    b = i // 10
+                    extra_items.append(i)
+                    extra_parts.append(a)
+                    extra_parts.append(b)
+                # print(needed_items)
+                # print(needed_parts)
+                # print(extra_items)
+                # print(extra_parts)
+                key = max(self.comps) + 1
+                self.comps[key] = {
+                    "name": name,
+                    "needed_champs": needed_champs,
+                    "early_champs": early_champs,
+                    "extra_champs": extra_champs,
+                    "needed_items": needed_items,
+                    "needed_parts": needed_parts,
+                    "extra_items": extra_items,
+                    "extra_parts": extra_parts,
+                }
+                # break
+
+    def find_core_items(self, lista, listb, needed_items):
+        item_count = max(len(listb) // 3, 2)
+        n = 0
+        for i in range(len(lista)):
+            for j in range(i + 1):
+                id1 = lista[j]
+                id2 = lista[i]
+                id = min(id1 * 10 + id2, id2 * 10 + id1)
+                # print(id)
+                if id in listb:
+                    n += 1
+                    needed_items.append(id)
+                    if n == item_count:
+                        return
 
     def translate_name_to_id(self, input):
         lista = []
@@ -255,6 +367,7 @@ if __name__ == '__main__':
     # print(s.champ_id_to_tier)
     # print(s.id_to_item)
     # print(s.trait_to_sets)
+
     for i in s.comps:
         a = s.comps[i]
         print(a)
