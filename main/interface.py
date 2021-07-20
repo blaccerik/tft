@@ -20,6 +20,7 @@ class App:
         self.id_to_champ = self.s.id_to_champ
         self.id_to_item = self.s.id_to_item
         self.root = root
+
         # selectors
         # framel = tk.Frame(self.root, width=40, height=25)
         # framel.grid(column=0, row=0)
