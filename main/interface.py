@@ -21,6 +21,9 @@ class App:
         self.id_to_item = self.s.id_to_item
         self.root = root
         # selectors
+        # framel = tk.Frame(self.root, width=40, height=25)
+        # framel.grid(column=0, row=0)
+
         frame = tk.Frame(self.root)
         frame.grid(column=0, row=0)
         # champions
@@ -39,8 +42,11 @@ class App:
         self.champion_dict = {}
         self.item_dict = {}
         self.font = tkFont.Font(family="Lucida Grande", size=7)
+        for i in range(1, 2):
 
-        for i in range(1, 9):
+            # framel = tk.Frame(self.root, width=40, height=40)
+            # framel.grid(column=0, row=i)
+
             frame = tk.Frame(self.root)
             frame.grid(column=0, row=i)
 
@@ -61,9 +67,13 @@ class App:
             self.frame_dict_items[i - 1] = {}
 
         # buttons
+
+        # frame3l = tk.Frame(self.root, width=40, height=52)
+        # frame3l.grid(column=0, row=10)
         frame3 = tk.Frame(self.root, width=690, height=52, bg="pink")
         frame3.grid(column=0, row=10)
         frame3.grid_propagate(False)
+
         button1 = tk.Button(frame3, width=30, text="Get Champs", command=self.press_button)
         button1.grid(column=0, row=0)
         # button1.grid_propagate(False)
@@ -71,6 +81,8 @@ class App:
         button2.grid(column=0, row=1)
         # button2.grid_propagate(False)
 
+        # frame4 = tk.Frame(self.root, width=40, height=240)
+        # frame4.grid(column=0, row=11)
         frame4 = tk.Frame(self.root, width=690, height=240)
         frame4.grid(column=0, row=11)
         frame4.grid_propagate(False)

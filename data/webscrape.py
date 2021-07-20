@@ -25,8 +25,9 @@ class WebScraper:
         link1 = link[:25]
         html = requests.get(link, headers={'User-Agent': 'Mozilla/5.0'}).text
         parsed_html = BeautifulSoup(html, features="html.parser")
-        text = parsed_html.find_all("div", {"class": "css-1d45r7t ex6nprs0"})
+        text = parsed_html.find_all("div", {"class": "m-1onxboh ex6nprs2"})
         final_list = []
+        print(text)
         for row in text[0]:
             found = row.find_all(['a'])
             if len(found) > 0:
@@ -39,8 +40,9 @@ class WebScraper:
     def mobalytics2(self, link):
         html = requests.get(link, headers={'User-Agent': 'Mozilla/5.0'}).text
         parsed_html = BeautifulSoup(html, features="html.parser")
-        text = parsed_html.find_all("div", {"class": "enl0bsh14 css-javxkw e31gwcf0"})
+        text = parsed_html.find_all("div", {"class": "enl0bsh0 m-17wd5gd e31gwcf1"})
         final = []
+        # champions
         for row in text[0]:
             found = row.find_all(['a'])[0]["href"]
             name = found[15:]
@@ -56,28 +58,33 @@ class WebScraper:
             name = found[15:]
             mid.append(name)
         order = []
-        text = parsed_html.find("div", {"class": "css-1dtnjt5 e3an59i0"})  # .find_all('img', alt=True)
+
+        # item order
+        text = parsed_html.find("div", {"class": "m-1o7d3sk e3an59i3"})  # .find_all('img', alt=True)
         for row in text:
             item = row.find('img')["alt"]
             order.append(item)
-        text = parsed_html.find_all("p", {"class": "css-1pfen8i elh7uow5"})
+
+        # items
+        text = parsed_html.find_all("p", {"class": "m-1ycn726 elh7uow4"})
         all_items = []
         # print(text)
         for row in text:
             item = row.text
             all_items.append(item)
 
-        text = parsed_html.find("div", {"class": "e1ez9x2v0 css-13d97lt e83jq8m0"})
+        text = parsed_html.find("div", {"class": "e1ez9x2v0 m-560ppy e83jq8m4"})
         options = []
+        # print(text)
         if text is not None:
             text2 = text.find_all('img', alt=True)
             for row in text2:
                 name = row["alt"]
                 options.append(name)
 
-        name = parsed_html.find("h1", {"class": "css-184yedx euxbs4g1"}).text
+        name = parsed_html.find("h1", {"class": "m-1sdlayj euxbs4g3"}).text
 
-        letter = parsed_html.find("div", {"class": "enl0bsh8 css-1thx1vt e4kvc90"}).find('img')["alt"]
+        letter = parsed_html.find("div", {"class": "enl0bsh6 m-1j9xggc e4kvc91"}).find('img')["alt"]
         # print(letter)
 
         # print(final, early, mid)

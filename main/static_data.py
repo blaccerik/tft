@@ -26,7 +26,7 @@ class Static:
 
         # trait -> sets : ranger: [2,4] -> ranger needs 2 units for 1st tier and 4 for 2nd
         self.read_traits("C:/Users/theerik/PycharmProjects/tft/data/traits.json")
-
+        # print(self.item_to_id)
         # read traits from tftactics json file
         # translate them to proper data like champs, items and parts
         self.read_comps_tftactics("C:/Users/theerik/PycharmProjects/tft/data/comps_tactics.json", only_s=False)
@@ -40,6 +40,7 @@ class Static:
                 p = data[nr]
                 name = p['championId'][5:].lower()
                 tier = p["cost"] - 1
+                # print(name)
 
                 champ_id = nr + 1
 
@@ -89,6 +90,24 @@ class Static:
         self.short_names[7] = "belt"
         self.short_names[8] = "spat"
         self.short_names[9] = "glov"
+
+        # :/
+        # 'hextechgunblade': 13
+        self.item_to_id["hextechlifeblade"] = 13
+        self.item_to_id["urfangelsstaff"] = 34
+        self.item_to_id["glamorousgauntlet"] = 39
+        self.item_to_id["warmogspride"] = 77
+        self.item_to_id["runaanstempest"] = 26
+        self.item_to_id["dvarapalastoneplate"] = 56
+        self.item_to_id["moremoreellonimicon"] = 37
+        self.item_to_id["guardianarchangel"] = 15
+        self.item_to_id["hellionemblem"] = 28
+        self.item_to_id["locketoftargonprime"] = 35
+        self.item_to_id["statikkfavor"] = 24
+        self.item_to_id["fistoffairness"] = 49
+        self.item_to_id["luminousdeathblade"] = 11
+        # self.item_to_id[""] = 35
+        # self.item_to_id[""] = 35
 
 
 
@@ -150,8 +169,8 @@ class Static:
                         # if a not in needed_items:
                         extra_items.append(a)
                         item_to_parts(a, extra_parts)
-                    else:
-                        print("error", champ)
+                    # else:
+                    #     print("error", champ)
                 for item in needed_items:
                     if item in extra_items:
                         extra_items.remove(item)
@@ -169,16 +188,16 @@ class Static:
                         a = self.champ_to_id[champ]
                         if a not in needed_champs:
                             early_champs.append(a)
-                    else:
-                        print("error", champ)
+                    # else:
+                    #     print("error", champ)
                 for champ in options:
                     champ = champ.replace(" ", "")
                     if champ in self.champ_to_id:
                         a = self.champ_to_id[champ]
                         if a not in needed_champs and a not in early_champs:
                             extra_champs.append(a)
-                    else:
-                        print("error", champ)
+                    # else:
+                    #     print("error", champ)
 
                 key = max(self.comps) + 1
                 self.comps[key] = {
@@ -216,19 +235,27 @@ class Static:
                 early_champs = []
                 extra_champs = []
                 for i in final:
-                    needed_champs.append(self.champ_to_id[i.replace("-", "").lower()])
+                    ii = i.replace("-", "").lower()
+                    if ii in self.champ_to_id:
+                        needed_champs.append(self.champ_to_id[ii])
                 for i in early:
-                    a = self.champ_to_id[i.replace("-", "").lower()]
-                    if a not in needed_champs:
-                        early_champs.append(a)
+                    ii = i.replace("-", "").lower()
+                    if ii in self.champ_to_id:
+                        a = self.champ_to_id[ii]
+                        if a not in needed_champs:
+                            early_champs.append(a)
                 for i in mid:
-                    a = self.champ_to_id[i.replace("-", "").lower()]
-                    if a not in needed_champs and a not in early_champs:
-                        extra_champs.append(a)
+                    ii = i.replace("-", "").lower()
+                    if ii in self.champ_to_id:
+                        a = self.champ_to_id[ii]
+                        if a not in needed_champs and a not in early_champs:
+                            extra_champs.append(a)
                 for i in options:
-                    a = self.champ_to_id[i.replace("-", "").lower()]
-                    if a not in needed_champs and a not in early_champs and a not in extra_champs:
-                        extra_champs.append(a)
+                    ii = i.replace("-", "").lower()
+                    if ii in self.champ_to_id:
+                        a = self.champ_to_id[ii]
+                        if a not in needed_champs and a not in early_champs and a not in extra_champs:
+                            extra_champs.append(a)
                 # figure out core the items
                 needed_items = []
                 needed_parts = []
@@ -249,8 +276,8 @@ class Static:
                         item = "archdemonsstaffofimmortality"
 
                     # change
-                    # id = self.item_to_id[item]
-                    id = self.shadow[item]
+                    id = self.item_to_id[item]
+                    # id = self.shadow[item]
 
 
                     # remove shadow trait
@@ -379,16 +406,10 @@ if __name__ == '__main__':
     # print(s.champ_id_to_tier)
     # print(s.id_to_item)
     # print(s.trait_to_sets)
-    size = 0
-    for i in s.comps:
-        a = s.comps[i]
-        if len(a) > 1:
-            aa = len(a["needed_items"])
-            bb = len(a["extra_items"])
-            if aa + bb > size:
-                size = aa + bb
-            print(a)
-    print(size)
+
+    # for i in s.comps:
+    #     a = s.comps[i]
+    #     print(a)
 
     # s.read_comps("C:/Users/theerik/PycharmProjects/tft/data/comps.json")
     # s.number_to_names(
