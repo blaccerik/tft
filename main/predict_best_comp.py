@@ -231,8 +231,8 @@ class Predict:
                  0.7 * extra_size / (size)
 
         # item score
-        score2 = 1 * core_i / (core_parts_size * 2) + \
-                 0.9 * extra_i / (extra_parts_size * 2) + \
+        score2 = 1 * core_i / (core_parts_size * 0.5) + \
+                 0.9 * extra_i / (extra_parts_size * 0.5) + \
                  0.95 * core_p / (core_parts_size) + \
                  0.8 * extra_p / (extra_parts_size)
 

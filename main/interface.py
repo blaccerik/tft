@@ -113,16 +113,16 @@ class App:
             id = self.s.item_to_id[i]
             for _ in range(nr):
                 items.append(id)
-        print(champs)
-        print(items)
-        top5 = self.p.predict_main(champs,
+        # print(champs)
+        # print(items)
+        top3 = self.p.predict_main(champs,
                                    items,
                                    many=3)
         for i in range(3):
-            frame = self.frame_list_screen[i]
-            key = top5[i][1]
-            self.add_comp_to_screen(key, frame, champs, items)
-            break
+            frames = self.frame_list_screen[i]
+            key = top3[i][1]
+            self.add_comp_to_screen(key, frames, champs, items)
+            # break
         # for i in self.p.s.comps:
         #     print(i, self.p.s.comps[i]["name"])
         # same_length(top5)
@@ -313,27 +313,152 @@ class App:
             self.item_dict[nr][item] = value
 
     def configure_screen(self, frame):
-        self.frame_dict_screen = {}
+        # self.frame_dict_screen = {}
         self.frame_list_screen = []
         test = ["red", "blue"]
+        test2 = ["grey", "lightgrey"]
         for i in range(3):
             frame1 = tk.Frame(frame, bg=test[i % 2], width=690, height=80)
             frame1.grid(column=0, row=i)
             frame1.grid_propagate(False)
-            self.frame_list_screen.append(frame1)
+            # champions
+            frame2 = tk.Frame(frame1, bg=test2[i % 2], width=270, height=80)
+            frame2.grid(column=0, row=0)
+            frame2.grid_propagate(False)
+            # core items
+            frame3 = tk.Frame(frame1, bg=test2[(i + 1) % 2], width=120, height=80)
+            frame3.grid(column=1, row=0)
+            frame3.grid_propagate(False)
+            # extra items
+            frame4 = tk.Frame(frame1, bg=test2[i % 2], width=300, height=80)
+            frame4.grid(column=2, row=0)
+            frame4.grid_propagate(False)
+            self.frame_list_screen.append((frame2, frame3, frame4))
 
-    def add_comp_to_screen(self, comp_key, frame, champs, items):
+
+    def add_champ_card(self, lista, champs, frame, row):
+        no = ["orange red", "orange"]
+        yes = ["green", "lime"]
+
+        for i in range(len(lista)):
+            champ = lista[i]
+            name = self.s.id_to_champ[champ]
+            if champ in champs:
+                parent = tk.Frame(frame, width=30, height=40, bg=yes[i % 2])
+            else:
+                parent = tk.Frame(frame, width=30, height=40, bg=no[i % 2])
+            parent.grid(column=i, row=row)
+            parent.pack_propagate(False)
+            frame2 = tk.Label(parent, bg="azure", text=name, padx=12, pady=9, bd=0, font=self.font, width=1)
+            frame2.pack()
+            frame2.pack_propagate(False)
+
+    def add_item_card(self, needed_items, needed_parts, items_copy, frame):
+        no = ["orange red", "orange"]
+        yes = ["green", "lime"]
+        for i in range(len(needed_items)):
+            item = needed_items[i]
+            part1 = needed_parts[i * 2]
+            part2 = needed_parts[i * 2 + 1]
+
+            name = self.s.id_to_item[item]
+            name1 = self.s.short_names[part1]
+            name2 = self.s.short_names[part2]
+            add = False
+            if item in items_copy:
+                items_copy.remove(item)
+                parent = tk.Frame(frame, bg=yes[i % 2], width=40, height=60)
+                add = True
+            else:
+                parent = tk.Frame(frame, bg=no[i % 2], width=40, height=60)
+
+            # huge card
+            parent.grid(column=i, row=0)
+            parent.pack_propagate(False)
+
+            # top card
+            # frame1 = tk.Frame(parent, bg="azure", width=30, height=30)
+            frame1 = tk.Label(parent, bg="azure", text=name, padx=12, pady=9, bd=0, font=self.font, width=1)
+            frame1.pack(side="top")
+
+            # bottom card
+            frame2 = tk.Frame(parent, bg="cyan", width=40, height=25)
+            frame2.pack(side="bottom")
+
+            if part1 in items_copy or add:
+                if not add:
+                    items_copy.remove(part1)
+                frame3 = tk.Frame(frame2, bg=yes[0], width=20, height=25)
+            else:
+                frame3 = tk.Frame(frame2, bg=no[0], width=20, height=25)
+            # # frame3 = tk.Label(parent, bg="yellow", text=name1, padx=1, pady=2, bd=0, font=self.font, width=3)
+            frame3.pack(side="left")
+            frame3.pack_propagate(False)
+
+            if part2 in items_copy or add:
+                if not add:
+                    items_copy.remove(part2)
+                frame4 = tk.Frame(frame2, bg=yes[1], width=20, height=25)
+            else:
+                frame4 = tk.Frame(frame2, bg=no[1], width=20, height=25)
+            # frame4 = tk.Label(parent, bg="orange", text=name2, padx=1, pady=2, bd=0, font=self.font, width=3)
+            frame4.pack(side="right")
+            frame4.pack_propagate(False)
+
+            # frame5 = tk.Frame(frame3, bg="azure", width=20, height=20)
+            frame5 = tk.Label(frame3, bg="azure", text=name1, padx=20, pady=4, bd=0, font=self.font, width=0)
+            frame5.pack(side="top")
+
+            # frame6 = tk.Frame(frame4, bg="azure", width=20, height=20)
+            frame6 = tk.Label(frame4, bg="azure", text=name2, padx=20, pady=4, bd=0, font=self.font, width=0)
+            frame6.pack(side="top")
+
+    def add_comp_to_screen(self, comp_key, frames, champs, items):
         comp = self.s.comps[comp_key]
-        print(champs)
-        print(items)
-        print(comp)
         needed_champs = comp["needed_champs"]
-        test = ["yellow", "orange"]
-        for i in range(len(needed_champs)):
-            frame1 = tk.Frame(frame, height=30, width=30, bg=test[i % 2])
-            frame1.grid(column=i, row=0)
-            frame1.grid_propagate(False)
-        pass
+        extra_champs = comp["extra_champs"]
+        early_champs = comp["early_champs"]
+        needed_items = comp["needed_items"]
+        needed_parts = comp["needed_parts"]
+        extra_items = comp["extra_items"]
+        extra_parts = comp["extra_parts"]
+        # print(needed_items)
+        # print(needed_parts)
+        # print(extra_items)
+        # print(extra_parts)
+        # print(items)
+        # print(comp["name"])
+
+        # prevent overlapping
+        for frame in frames:
+            for child in frame.winfo_children():
+                child.destroy()
+
+
+        # make lists
+        lista = needed_champs.copy()
+        lista.sort(key=lambda x: self.s.champ_id_to_tier[x])
+        listb = early_champs.copy()
+        listb.extend(extra_champs)
+        listb.sort(key=lambda x: self.s.champ_id_to_tier[x])
+
+        # core champs
+        self.add_champ_card(lista, champs, frames[0], 0)
+        # extra champs
+        self.add_champ_card(listb, champs, frames[0], 1)
+        # items
+        no = ["orange red", "orange"]
+        yes = ["green", "lime"]
+        items_copy = items.copy()
+        self.add_item_card(needed_items, needed_parts, items_copy, frames[1])
+        self.add_item_card(extra_items, extra_parts, items_copy, frames[2])
+
+        # for i in range(len(extra_items)):
+        #     item = extra_items[i]
+        #     part1 = extra_parts[i * 2]
+        #     part2 = extra_parts[i * 2 + 1]
+        #     print(item)
+        #     print(part1, part2)
 
 
 

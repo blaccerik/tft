@@ -29,7 +29,7 @@ class Static:
 
         # read traits from tftactics json file
         # translate them to proper data like champs, items and parts
-        # self.read_comps_tftactics("C:/Users/theerik/PycharmProjects/tft/data/comps_tactics.json", only_s=False)
+        self.read_comps_tftactics("C:/Users/theerik/PycharmProjects/tft/data/comps_tactics.json", only_s=False)
         # moba comps
         self.read_comps_moba("C:/Users/theerik/PycharmProjects/tft/data/comps_moba.json", only_s=False)
 
@@ -58,6 +58,7 @@ class Static:
     def read_items(self, link):
 
         self.shadow = {}
+        self.short_names = {}
 
         with open(link) as json_file:
             data = json.load(json_file)
@@ -79,6 +80,16 @@ class Static:
         self.item_to_id["belt"] = 7
         self.item_to_id["health"] = 7
         self.item_to_id["gloves"] = 9
+        self.short_names[1] = "swor"
+        self.short_names[2] = "bow"
+        self.short_names[3] = "rod"
+        self.short_names[4] = "tear"
+        self.short_names[5] = "vest"
+        self.short_names[6] = "cloa"
+        self.short_names[7] = "belt"
+        self.short_names[8] = "spat"
+        self.short_names[9] = "glov"
+
 
 
 
@@ -241,8 +252,9 @@ class Static:
                     # id = self.item_to_id[item]
                     id = self.shadow[item]
 
+
                     # remove shadow trait
-                    id = id % 1000
+                    id = id % 100
                     listb.append(id)
                 # core
                 self.find_core_items(lista, listb, needed_items)
@@ -367,10 +379,16 @@ if __name__ == '__main__':
     # print(s.champ_id_to_tier)
     # print(s.id_to_item)
     # print(s.trait_to_sets)
-
+    size = 0
     for i in s.comps:
         a = s.comps[i]
-        print(a)
+        if len(a) > 1:
+            aa = len(a["needed_items"])
+            bb = len(a["extra_items"])
+            if aa + bb > size:
+                size = aa + bb
+            print(a)
+    print(size)
 
     # s.read_comps("C:/Users/theerik/PycharmProjects/tft/data/comps.json")
     # s.number_to_names(
