@@ -1,11 +1,16 @@
 import difflib
 import tkinter as tk
 import tkinter.font as tkFont
+import numpy as np
+from tkinter import *
+
+from PIL import Image, ImageTk
 from predict_best_comp import Predict
 from static_data import Static
 from screen import Screen
 from Control import Control
 import time
+from Champions_pic import Champions_pic
 
 class App:
 
@@ -14,11 +19,16 @@ class App:
         self.s = Static()
         self.p = Predict(self.s)
 
+        # self.image =
+
         # self.screen = Screen()
         # self.c = Control()
 
         self.id_to_champ = self.s.id_to_champ
         self.id_to_item = self.s.id_to_item
+        self.name_to_pic = {}
+        self.read_champions_pic()
+
         self.root = root
 
         # selectors
@@ -88,6 +98,11 @@ class App:
         frame4.grid(column=0, row=11)
         frame4.grid_propagate(False)
         self.configure_screen(frame4)
+
+    def read_champions_pic(self):
+        c = Champions_pic()
+        for i in c.get_champion_list():
+            self.name_to_pic[i[0]] = i[1]
 
     def press_button(self):
         time.sleep(2)
@@ -163,8 +178,16 @@ class App:
         parent.pack_propagate(False)
 
         # frame2 = tk.Frame(parent, bg="orange", width=30, height=30)
-        frame2 = tk.Label(parent, bg="orange", text=self.selected_champ, padx=12, pady=9, bd=0, font=self.font, width=1)
-        frame2.grid(column=0, row=0, sticky="W")
+        # frame2 = tk.Label(parent, bg="orange", text=self.selected_champ, padx=12, pady=9, bd=0, font=self.font, width=1)
+
+        frame2 = tk.Canvas(parent, width=30, height=30, highlightthickness=0)
+        frame2.grid(column=0, row=0)
+        frame2.grid_propagate(False)
+        img = ImageTk.PhotoImage(image=self.name_to_pic[self.selected_champ])
+        parent.img = img
+        frame2.create_image(0, 0, anchor=NW, image=img)
+        # frame2 = tk.Frame(parent, bg="orange", width=30, height=30)
+        # frame2.grid(column=0, row=0)
         frame2.bind("<Button-1>", self.left_click_champ)
         frame2.bind("<Button-3>", self.right_click_champ)
         #
@@ -172,7 +195,7 @@ class App:
         label.grid(column=0, row=1)
         label.bind("<Button-1>", self.left_click_champ)
         label.bind("<Button-3>", self.right_click_champ)
-        # label.grid_propagate(False)
+        label.grid_propagate(False)
 
         self.frame_dict_champions[nr][parent] = self.selected_champ
 
@@ -281,7 +304,7 @@ class App:
                 n += 1
                 # print(frame.gr)
         else:
-            parent.children["!label2"]["text"] = value
+            parent.children["!label"]["text"] = value
             self.champion_dict[nr][champ] = value
 
     def right_click_champ(self, event):
@@ -292,7 +315,7 @@ class App:
         if value == 10:
             pass
         else:
-            parent.children["!label2"]["text"] = value
+            parent.children["!label"]["text"] = value
             self.champion_dict[nr][champ] = value
 
     def left_click_item(self, event: tk.Event):
@@ -362,9 +385,17 @@ class App:
                 parent = tk.Frame(frame, width=30, height=40, bg=no[i % 2])
             parent.grid(column=i, row=row)
             parent.pack_propagate(False)
-            frame2 = tk.Label(parent, bg="azure", text=name, padx=12, pady=9, bd=0, font=self.font, width=1)
+
+            frame2 = tk.Canvas(parent, width=30, height=30, highlightthickness=0)
             frame2.pack()
             frame2.pack_propagate(False)
+            img = ImageTk.PhotoImage(image=self.name_to_pic[name])
+            parent.img = img
+            frame2.create_image(0, 0, anchor=NW, image=img)
+
+            # frame2 = tk.Label(parent, bg="azure", text=name, padx=12, pady=9, bd=0, font=self.font, width=1)
+            # frame2.pack()
+            # frame2.pack_propagate(False)
 
     def add_item_card(self, needed_items, needed_parts, items_copy, frame):
         no = ["orange red", "orange"]
