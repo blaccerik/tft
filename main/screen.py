@@ -9,7 +9,7 @@ from Control import Control
 from Champions import Champions
 from static_data import Static
 from Trait_to_champion import Calculator
-from Items import Items
+# from Items import Items
 from predict_best_comp import Predict, same_length
 
 class Screen:
@@ -28,8 +28,8 @@ class Screen:
         self.load_templates(t.get_badge_templates(self.color))
         c = Champions()
         self.load_champions(c.get_champion_list(False))
-        i = Items()
-        self.load_items(i.get_item_list(self.color))
+        # i = Items()
+        # self.load_items(i.get_item_list(self.color))
         self.p = Predict(self.s)
 
 
@@ -60,12 +60,12 @@ class Screen:
             self.champs[name] = array
         pass
 
-    def load_items(self, items: list):
-        for i in items:
-            name = i[0]
-            array = i[1]
-            self.items[name] = array
-        pass
+    # def load_items(self, items: list):
+    #     for i in items:
+    #         name = i[0]
+    #         array = i[1]
+    #         self.items[name] = array
+    #     pass
 
     def take_picture(self, monitor, color):
         if color:

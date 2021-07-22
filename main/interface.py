@@ -452,6 +452,10 @@ class App:
             # frame5 = tk.Frame(frame3, bg="azure", width=20, height=20)
             frame5 = tk.Label(frame3, bg="azure", text=name1, padx=20, pady=4, bd=0, font=self.font, width=0)
             frame5.pack(side="top")
+            # frame5.pack_propagate(False)
+            img = ImageTk.PhotoImage(image=self.name_to_pic[name1])
+            frame3.img = img
+            frame5.create_image(0, 0, anchor=NW, image=img)
 
             # frame6 = tk.Frame(frame4, bg="azure", width=20, height=20)
             frame6 = tk.Label(frame4, bg="azure", text=name2, padx=20, pady=4, bd=0, font=self.font, width=0)
