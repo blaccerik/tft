@@ -17,7 +17,7 @@ Disclaimer!
 Before you run it make sure that the paths to files are correct!  
 Open the following files and on the top there should be "C:/Users/theerik/PycharmProjects/tft/ xx / xx" line  
 change it to the path where you have it stored. For example in Champions.py  
-link = "C:/Users/theerik/PycharmProjects/tft/data/champions_store/edited" => link = "C:/Users/your_user/tft/champions_store/edited"
+link = "C:/Users/theerik/PycharmProjects/tft/data/champions_store/edited" => link = "C:/Users/your_user/tft/champions_store/edited"  
 Files:  
 static_data.py  
 Champions.py  
