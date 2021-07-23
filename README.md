@@ -48,11 +48,11 @@ numbers under the champion mean how many copies you have on your screen -> 3 aat
 9 aatrox => one lvl 3 aatrox  
 ![image](https://user-images.githubusercontent.com/73612140/126775054-c7ab69e7-6afd-453f-9143-ac49955dc7cc.png)  
 * Buttons  
-Get champs - takes a picture of the screen and finds all the champs (inc store) and adds them to the queue, if that champs is alreadt in the queue then it doesn add it  
+Get champs - takes a picture of the screen and finds all the champs (inc store) and adds them to the queue, if that champ is already in the queue then it doesn add it  
 If you have cuda installed and setup correctly then it only takes 0.5 sec to read the image but I have added a 2 sec (you can change it: interface.py function press_button 1st line "time.sleep(2)" => "time.sleep(1)") delay so that you can switch back to your game window   
-without cuda it cna take up to 2 sec to read the image + delay time  
+without cuda it can take up to 2 sec to read the image + delay time  
 Its reccomended that you use bordeless mode for tft  
-Calculate - Calcualtes the best comps for you based on that what you have entered above  
+Calculate - Calcualtes the best comps for you based on what you have entered above  
 ![image](https://user-images.githubusercontent.com/73612140/126775348-a11e9357-1e39-48a7-875b-609bf79f8491.png)  
 * Comps
 There are 3 comps/build which are the top 3 (top1 is on the top) that the system thinks is the best  
