@@ -1,14 +1,15 @@
 # Tft AI
 Helper tool for the auto-chess game called Teamfight Tactics
 
+It collects data from the game using yolov3 image recognition algorithm and calculates the best build/comp for you
 
-It calculates the best build/comp for you, given what you have and what others build
+yolov3:
+![image](https://user-images.githubusercontent.com/73612140/126772272-b9dc5cd7-b159-45b4-bb9f-dc4f6b57484b.png)
 
-Disclaimer: 
-You can be in top 4 in ~55% of the games and 1st in 25.6% by only building 1 comp
-so technically you dont need to predict anything  
-comp is redeemed knights/rangers btw  
+interface:
+![image](https://user-images.githubusercontent.com/73612140/126772082-8cce676f-3f94-43c8-a025-8c575e86495f.png)
 
-Current prediction algorithm only factors in your champions and items and decides which comp you should play. Currently is under testing but is showing promising results
 
-Current interface is temporary and will be replaced with image recognition AI that gets data from live game
+Current prediction algorithm only factors in your champions and items and decides which comp you should play. Since 5.5 was released recently I dont have enough data do train neural network which factors in other players build, but it shouldnt make that big of a diffrence
+
+
