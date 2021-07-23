@@ -9,6 +9,7 @@ from predict_best_comp import Predict
 from static_data import Static
 from screen import Screen
 from Control import Control
+from Items import Items
 import time
 from Champions_pic import Champions_pic
 
@@ -28,6 +29,7 @@ class App:
         self.id_to_item = self.s.id_to_item
         self.name_to_pic = {}
         self.read_champions_pic()
+        self.read_items()
 
         self.root = root
 
@@ -104,11 +106,22 @@ class App:
         for i in c.get_champion_list():
             self.name_to_pic[i[0]] = i[1]
 
+    def read_items(self):
+        i = Items()
+        for j in i.get_item_list():
+            name = j[0]
+            # print(name)
+            if "s" in name:
+                name = name[:-1]
+                self.name_to_pic[self.s.id_to_item[int(name)]] = j[1]
+            else:
+                self.name_to_pic[int(name)] = j[1]
+
     def press_button(self):
         time.sleep(2)
         me, champ_dict = self.screen.cather_data()
-        print(me)
-        print(champ_dict)
+        # print(me)
+        # print(champ_dict)
         if me:
             for chap in champ_dict:
                 amount = champ_dict[chap]
@@ -138,9 +151,9 @@ class App:
         # items
         for i in self.item_dict[row]:
             nr = self.item_dict[row][i]
-            id = self.s.item_to_id[i]
+            # id = self.s.item_to_id[i]
             for _ in range(nr):
-                items.append(id)
+                items.append(i)
         # print(champs)
         # print(items)
         top3 = self.p.predict_main(champs,
@@ -179,13 +192,17 @@ class App:
 
         # frame2 = tk.Frame(parent, bg="orange", width=30, height=30)
         # frame2 = tk.Label(parent, bg="orange", text=self.selected_champ, padx=12, pady=9, bd=0, font=self.font, width=1)
-
-        frame2 = tk.Canvas(parent, width=30, height=30, highlightthickness=0)
-        frame2.grid(column=0, row=0)
-        frame2.grid_propagate(False)
-        img = ImageTk.PhotoImage(image=self.name_to_pic[self.selected_champ])
-        parent.img = img
-        frame2.create_image(0, 0, anchor=NW, image=img)
+        if self.selected_champ in self.name_to_pic:
+            frame2 = tk.Canvas(parent, width=30, height=30, highlightthickness=0)
+            frame2.grid(column=0, row=0)
+            frame2.grid_propagate(False)
+            img = ImageTk.PhotoImage(image=self.name_to_pic[self.selected_champ])
+            parent.img = img
+            frame2.create_image(0, 0, anchor=NW, image=img)
+        else:
+            frame2 = tk.Label(parent, bg="orange", text=self.selected_champ, padx=12, pady=9, bd=0, font=self.font, width=1)
+            frame2.grid(column=0, row=0)
+            frame2.grid_propagate(False)
         # frame2 = tk.Frame(parent, bg="orange", width=30, height=30)
         # frame2.grid(column=0, row=0)
         frame2.bind("<Button-1>", self.left_click_champ)
@@ -201,20 +218,33 @@ class App:
 
     def add_item_frame(self, nr, def_value=1):
         item_dict = self.item_dict[nr]
+        item_id = self.s.item_to_id[self.selected_item]
         if self.selected_item == "none":
             return
-        elif self.selected_item in item_dict:
+        elif item_id in item_dict:
             return
 
-        item_dict[self.selected_item] = def_value
+        item_dict[item_id] = def_value
         frame = self.frame_list_items[nr]
 
         parent = tk.Frame(frame, width=30, height=40, bg="yellow")
         parent.grid(column=len(item_dict), row=0)
         parent.pack_propagate(False)
 
-        frame2 = tk.Label(parent, bg="orange", text=self.selected_item, padx=12, pady=9, bd=0, font=self.font, width=1)
-        frame2.grid(column=0, row=0, sticky="W")
+        # frame2 = tk.Label(parent, bg="orange", text=self.selected_item, padx=12, pady=9, bd=0, font=self.font, width=1)
+        # frame2.grid(column=0, row=0, sticky="W")
+
+        frame2 = tk.Canvas(parent, width=30, height=30, highlightthickness=0)
+        frame2.grid(column=0, row=0)
+        frame2.grid_propagate(False)
+        img = ImageTk.PhotoImage(image=self.name_to_pic[item_id])
+        parent.img = img
+        frame2.create_image(0, 0, anchor=NW, image=img)
+        # frame2 = tk.Frame(parent, bg="orange", width=30, height=30)
+        # frame2.grid(column=0, row=0)
+        frame2.bind("<Button-1>", self.left_click_champ)
+        frame2.bind("<Button-3>", self.right_click_champ)
+
         frame2.bind("<Button-1>", self.left_click_item)
         frame2.bind("<Button-3>", self.right_click_item)
         #
@@ -224,7 +254,7 @@ class App:
         label.bind("<Button-3>", self.right_click_item)
         label.grid_propagate(False)
 
-        self.frame_dict_items[nr][parent] = self.selected_item
+        self.frame_dict_items[nr][parent] = item_id
 
         # name = parent._w
         # self.frame_dict[name] = {"count": 1, "obj": parent, "champ": self.selected_champ}
@@ -334,7 +364,7 @@ class App:
                 frame.grid(column=n, row=0)
                 n += 1
         else:
-            parent.children["!label2"]["text"] = value
+            parent.children["!label"]["text"] = value
             self.item_dict[nr][item] = value
 
     def right_click_item(self, event):
@@ -345,7 +375,7 @@ class App:
         if value == 10:
             pass
         else:
-            parent.children["!label2"]["text"] = value
+            parent.children["!label"]["text"] = value
             self.item_dict[nr][item] = value
 
     def configure_screen(self, frame):
@@ -385,15 +415,17 @@ class App:
                 parent = tk.Frame(frame, width=30, height=40, bg=no[i % 2])
             parent.grid(column=i, row=row)
             parent.pack_propagate(False)
-
-            frame2 = tk.Canvas(parent, width=30, height=30, highlightthickness=0)
-            frame2.pack()
-            frame2.pack_propagate(False)
-            img = ImageTk.PhotoImage(image=self.name_to_pic[name])
-            parent.img = img
-            frame2.create_image(0, 0, anchor=NW, image=img)
-
-            # frame2 = tk.Label(parent, bg="azure", text=name, padx=12, pady=9, bd=0, font=self.font, width=1)
+            if name in self.name_to_pic:
+                frame2 = tk.Canvas(parent, width=30, height=30, highlightthickness=0)
+                frame2.pack()
+                frame2.pack_propagate(False)
+                img = ImageTk.PhotoImage(image=self.name_to_pic[name])
+                parent.img = img
+                frame2.create_image(0, 0, anchor=NW, image=img)
+            else:
+                frame2 = tk.Label(parent, bg="azure", text=name, padx=12, pady=9, bd=0, font=self.font, width=1)
+                frame2.pack()
+                frame2.pack_propagate(False)
             # frame2.pack()
             # frame2.pack_propagate(False)
 
@@ -405,9 +437,9 @@ class App:
             part1 = needed_parts[i * 2]
             part2 = needed_parts[i * 2 + 1]
 
-            name = self.s.id_to_item[item]
-            name1 = self.s.short_names[part1]
-            name2 = self.s.short_names[part2]
+            # name = self.s.id_to_item[item]
+            name1 = self.s.id_to_item[part1]
+            name2 = self.s.id_to_item[part2]
             add = False
             if item in items_copy:
                 items_copy.remove(item)
@@ -420,10 +452,17 @@ class App:
             parent.grid(column=i, row=0)
             parent.pack_propagate(False)
 
-            # top card
-            # frame1 = tk.Frame(parent, bg="azure", width=30, height=30)
-            frame1 = tk.Label(parent, bg="azure", text=name, padx=12, pady=9, bd=0, font=self.font, width=1)
-            frame1.pack(side="top")
+            # # top card
+            # # frame1 = tk.Frame(parent, bg="azure", width=30, height=30)
+            # frame1 = tk.Label(parent, bg="azure", text=name, padx=12, pady=9, bd=0, font=self.font, width=1)
+            # frame1.pack(side="top")
+            frame2 = tk.Canvas(parent, width=30, height=30, highlightthickness=0)
+            frame2.pack(side="top")
+            frame2.pack_propagate(False)
+            # print(self.name_to_pic)
+            img = ImageTk.PhotoImage(image=self.name_to_pic[item])
+            parent.img = img
+            frame2.create_image(0, 0, anchor=NW, image=img)
 
             # bottom card
             frame2 = tk.Frame(parent, bg="cyan", width=40, height=25)
@@ -450,7 +489,9 @@ class App:
             frame4.pack_propagate(False)
 
             # frame5 = tk.Frame(frame3, bg="azure", width=20, height=20)
-            frame5 = tk.Label(frame3, bg="azure", text=name1, padx=20, pady=4, bd=0, font=self.font, width=0)
+            # frame5 = tk.Label(frame3, bg="azure", text=name1, padx=20, pady=4, bd=0, font=self.font, width=0)
+            # frame5.pack(side="top")
+            frame5 = tk.Canvas(frame3, width=20, height=20, highlightthickness=0)
             frame5.pack(side="top")
             # frame5.pack_propagate(False)
             img = ImageTk.PhotoImage(image=self.name_to_pic[name1])
@@ -458,8 +499,14 @@ class App:
             frame5.create_image(0, 0, anchor=NW, image=img)
 
             # frame6 = tk.Frame(frame4, bg="azure", width=20, height=20)
-            frame6 = tk.Label(frame4, bg="azure", text=name2, padx=20, pady=4, bd=0, font=self.font, width=0)
+            # frame6 = tk.Label(frame4, bg="azure", text=name2, padx=20, pady=4, bd=0, font=self.font, width=0)
+            # frame6.pack(side="top")
+            frame6 = tk.Canvas(frame4, width=20, height=20, highlightthickness=0)
             frame6.pack(side="top")
+            # frame5.pack_propagate(False)
+            img = ImageTk.PhotoImage(image=self.name_to_pic[name2])
+            frame4.img = img
+            frame6.create_image(0, 0, anchor=NW, image=img)
 
     def add_comp_to_screen(self, comp_key, frames, champs, items):
         comp = self.s.comps[comp_key]

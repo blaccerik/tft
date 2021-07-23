@@ -397,15 +397,15 @@ if __name__ == '__main__':
 
 
     # print()
-    # print(s.champ_to_id)
-    # print(s.id_to_champ)
-    # print(s.champion_to_traits)
-    # print(s.trait_to_champions)
-    # print(s.item_to_id)
-    # print(s.id_to_item)
-    # print(s.champ_id_to_tier)
-    # print(s.id_to_item)
-    # print(s.trait_to_sets)
+    print(s.champ_to_id)
+    print(s.id_to_champ)
+    print(s.champion_to_traits)
+    print(s.trait_to_champions)
+    print(s.item_to_id)
+    print(s.id_to_item)
+    print(s.champ_id_to_tier)
+    print(s.id_to_item)
+    print(s.trait_to_sets)
 
     # for i in s.comps:
     #     a = s.comps[i]
