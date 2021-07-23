@@ -22,8 +22,8 @@ class App:
 
         # self.image =
 
-        # self.screen = Screen()
-        # self.c = Control()
+        self.screen = Screen()
+        self.c = Control()
 
         self.id_to_champ = self.s.id_to_champ
         self.id_to_item = self.s.id_to_item
@@ -119,6 +119,7 @@ class App:
 
     def press_button(self):
         time.sleep(2)
+
         me, champ_dict = self.screen.cather_data()
         # print(me)
         # print(champ_dict)
@@ -334,7 +335,10 @@ class App:
                 n += 1
                 # print(frame.gr)
         else:
-            parent.children["!label"]["text"] = value
+            if "!canvas" in parent.children:
+                parent.children["!label"]["text"] = value
+            else:
+                parent.children["!label2"]["text"] = value
             self.champion_dict[nr][champ] = value
 
     def right_click_champ(self, event):
@@ -345,7 +349,10 @@ class App:
         if value == 10:
             pass
         else:
-            parent.children["!label"]["text"] = value
+            if "!canvas" in parent.children:
+                parent.children["!label"]["text"] = value
+            else:
+                parent.children["!label2"]["text"] = value
             self.champion_dict[nr][champ] = value
 
     def left_click_item(self, event: tk.Event):
