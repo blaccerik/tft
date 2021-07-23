@@ -26,6 +26,7 @@ Champions.py
 Items.py  
 screen.py  
 Templates.py  
+
 Also make sure you have all the needed modules installed:  
 mss  
 numpy  
