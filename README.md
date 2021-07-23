@@ -12,7 +12,27 @@ interface:
 
 Disclaimer!  
 * Current version of yolo3 can only find champions and not items. I'm working on a updated version
-* Current prediction algorithm only factors in your champions and /items. Since set 5.5 was recently released I dont have enough data to train nn which factors in other players builds, but it shouldn't make that big of a diffrence
+* Current prediction algorithm only factors in your champions and /items. Since set 5.5 was recently released I dont have enough data to train nn which factors in other players builds, but it shouldn't make that big of a diffrence  
+
+Before you run it make sure that the paths to files are correct!  
+Open the following files and on the top there should be "C:/Users/theerik/PycharmProjects/tft/ xx / xx" line  
+change it to the path where you have it stored. For example in Champions.py  
+link = "C:/Users/theerik/PycharmProjects/tft/data/champions_store/edited" => link = "C:/Users/your_user/tft/champions_store/edited"
+Files:  
+static_data.py  
+Champions.py  
+Champions_pic.py  
+Champions.py  
+Items.py  
+screen.py  
+Templates.py  
+Also make sure you have all the needed modules installed:  
+mss  
+numpy  
+cv2  
+pyautogui  
+difflib  
+pytorch(torch)  
 
 How to use:  
 * find interface.py file and run it, it should take some time to load but thats okay
