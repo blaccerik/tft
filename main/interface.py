@@ -118,16 +118,18 @@ class App:
                 self.name_to_pic[int(name)] = j[1]
 
     def press_button(self):
-        time.sleep(2)
+        time.sleep(1)
 
         me, champ_dict = self.screen.cather_data()
         # print(me)
         # print(champ_dict)
         if me:
+            some = self.selected_champ
             for chap in champ_dict:
                 amount = champ_dict[chap]
                 self.selected_champ = chap
                 self.add_champ_frame(0, def_value=amount)
+            self.selected_champ = some
         # # full_dict = self.screen.main(self.c)
         # # print(full_dict)
         # for row in full_dict:
