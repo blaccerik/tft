@@ -1,4 +1,4 @@
-# Tft AI
+# Tft AI (set 5.5)
 Helper tool for the auto-chess game called Teamfight Tactics
 
 It collects data from the game using yolov3 image recognition algorithm and calculates the best build/comp for you
