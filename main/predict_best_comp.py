@@ -80,6 +80,7 @@ class Predict:
         for item in items:
             # item
             if item % 1000 > 10:
+                print(item)
                 if item in core_items:
                     core_items.remove(item)
                     some_list = []
@@ -214,6 +215,7 @@ class Predict:
             top5.sort(key=lambda x: x[0], reverse=True)
             if len(top5) > many:
                 del top5[many]
+            # break
 
             # info
             # print(key, name)
@@ -269,12 +271,12 @@ if __name__ == '__main__':
     s = Static()
     p = Predict(s)
     # p.s.number_to_names(
-    #     (1,)
+    #     (10,)
     # )
 
     top5 = p.predict_main(
         # {26: 2, 44: 1, 24: 1, 48: 1, 1: 1},
-        {1: 3},
+        {10: 1},
         [],
         # {2:1}
     )

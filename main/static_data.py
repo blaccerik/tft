@@ -129,6 +129,10 @@ class Static:
             data = json.load(json_file)
             for row in data:
                 name = row["name"]
+
+                # if name != 'SAbomination RevenantsSlow Roll':
+                #     continue
+
                 if only_s:
                     tier = name[0].lower()
                     if tier != "s":
@@ -158,46 +162,54 @@ class Static:
                 extra_items = []
                 extra_parts = []
                 needed_champs = []
+                item_to_champ = []
+                last_champ = None
                 for obj in lista:
                     # print(self.champ_to_id)
                     champ = obj.replace(" ", "").replace("'", "")
                     if champ in self.champ_to_id:
-                        needed_champs.append(self.champ_to_id[champ])
+                        champ_id = self.champ_to_id[champ]
+                        last_champ = champ_id
+                        needed_champs.append(champ_id)
                     elif champ in self.item_to_id:
                         # might change if i want items to overlap
                         a = self.item_to_id[champ]
-                        # if a not in needed_items:
                         extra_items.append(a)
-                        item_to_parts(a, extra_parts)
-                    # else:
-                    #     print("error", champ)
-                for item in needed_items:
-                    if item in extra_items:
-                        extra_items.remove(item)
-                for part in needed_parts:
-                    if part in extra_parts:
-                        extra_parts.remove(part)
+                        item_to_champ.append((a, last_champ))
+                    else:
+                        print("error", champ)
+
+                # remove copies
+                for i in needed_items:
+                    if i in extra_items:
+                        extra_items.remove(i)
+                # find parts
+                for i in extra_items:
+                    item_to_parts(i, extra_parts)
 
                 # figure out rest of the champs
-                early_champs = []
-                extra_champs = []
+                early_champs = set()
+                extra_champs = set()
                 # might need to change if i want champs to overlap
                 for champ in early:
                     champ = champ.replace(" ", "")
                     if champ in self.champ_to_id:
                         a = self.champ_to_id[champ]
                         if a not in needed_champs:
-                            early_champs.append(a)
-                    # else:
-                    #     print("error", champ)
+                            early_champs.add(a)
+                    else:
+                        print("error", champ)
+                # print(options)
                 for champ in options:
                     champ = champ.replace(" ", "")
                     if champ in self.champ_to_id:
                         a = self.champ_to_id[champ]
                         if a not in needed_champs and a not in early_champs:
-                            extra_champs.append(a)
-                    # else:
-                    #     print("error", champ)
+                            extra_champs.add(a)
+                    else:
+                        print("error", champ)
+                early_champs = list(early_champs)
+                extra_champs = list(extra_champs)
 
                 key = max(self.comps) + 1
                 self.comps[key] = {
@@ -209,7 +221,9 @@ class Static:
                     "needed_parts": needed_parts,
                     "extra_items": extra_items,
                     "extra_parts": extra_parts,
+                    "item_to_champ": item_to_champ
                 }
+                # break
 
     def read_comps_moba(self, link, only_s=True):
         with open(link) as json_file:
@@ -256,7 +270,7 @@ class Static:
                         a = self.champ_to_id[ii]
                         if a not in needed_champs and a not in early_champs and a not in extra_champs:
                             extra_champs.append(a)
-                # figure out core the items
+                # figure out core items
                 needed_items = []
                 needed_parts = []
                 extra_items = []
@@ -267,9 +281,10 @@ class Static:
                     id = self.item_to_id[part]
                     lista.append(id)
                 listb = []
-                for item in all_items:
+                for item_list in all_items:
                     # if error change text in json
-                    item = item.replace("-", "").replace(" ", "").replace("'", "").lower()
+                    champ = item_list[1].replace(" ", "").replace("'", "").lower()
+                    item = item_list[0].replace("-", "").replace(" ", "").replace("'", "").lower()
                     if item == "handofvengence":
                         item = "handofvengeance"
                     elif item == "archdemonsstaff":
@@ -277,27 +292,31 @@ class Static:
 
                     # change
                     id = self.item_to_id[item]
+                    champ_id = self.champ_to_id[champ]
                     # id = self.shadow[item]
-
 
                     # remove shadow trait
                     id = id % 100
-                    listb.append(id)
+                    listb.append((id, champ_id))
                 # core
-                self.find_core_items(lista, listb, needed_items)
-                for i in needed_items:
+                item_to_champ = []
+                self.find_core_items(lista, listb, item_to_champ)
+                # needed_items.append(k[0])
+                for i in item_to_champ:
                     listb.remove(i)
-                    a = i % 10
-                    b = i // 10
+                    a = i[0] % 10
+                    b = i[0] // 10
+                    needed_items.append(i[0])
                     needed_parts.append(a)
                     needed_parts.append(b)
                 # extra
                 for i in listb:
-                    a = i % 10
-                    b = i // 10
-                    extra_items.append(i)
+                    a = i[0] % 10
+                    b = i[0] // 10
+                    extra_items.append(i[0])
                     extra_parts.append(a)
                     extra_parts.append(b)
+                    item_to_champ.append(i)
                 # print(needed_items)
                 # print(needed_parts)
                 # print(extra_items)
@@ -312,10 +331,11 @@ class Static:
                     "needed_parts": needed_parts,
                     "extra_items": extra_items,
                     "extra_parts": extra_parts,
+                    "item_to_champ": item_to_champ
                 }
                 # break
 
-    def find_core_items(self, lista, listb, needed_items):
+    def find_core_items(self, lista, listb, item_to_champ):
         item_count = max(len(listb) // 3, 2)
         n = 0
         for i in range(len(lista)):
@@ -323,12 +343,14 @@ class Static:
                 id1 = lista[j]
                 id2 = lista[i]
                 id = min(id1 * 10 + id2, id2 * 10 + id1)
-                # print(id)
-                if id in listb:
-                    n += 1
-                    needed_items.append(id)
-                    if n == item_count:
-                        return
+                for k in listb:
+                    if id == k[0]:
+                        n += 1
+                        # needed_items.append(k)
+                        item_to_champ.append(k)
+                        if n == item_count:
+                            return
+                        break
 
     def translate_name_to_id(self, input):
         lista = []
@@ -376,18 +398,21 @@ class Static:
 
 def item_to_parts(item, needed_parts):
     # for normal items
-
-    if item < 100:
-        for d in str(item):
-            needed_parts.append(int(d))
-    # for shadow items
-    else:
-        normal = item % 1000
-        # parts = [int(d) for d in str(normal)]
-        for d in str(normal):
-            nr = int(d)
-            needed_parts.append(nr)
-            needed_parts.append(nr + 1000)
+    a = item % 10
+    b = item // 10
+    needed_parts.append(a)
+    needed_parts.append(b)
+    # if item < 100:
+    #     for d in str(item):
+    #         needed_parts.append(int(d))
+    # # for shadow items
+    # else:
+    #     normal = item % 1000
+    #     # parts = [int(d) for d in str(normal)]
+    #     for d in str(normal):
+    #         nr = int(d)
+    #         needed_parts.append(nr)
+    #         needed_parts.append(nr + 1000)
 
 
 if __name__ == '__main__':
@@ -396,20 +421,20 @@ if __name__ == '__main__':
     # s.only_letters()
 
 
-    # print()
-    print(s.champ_to_id)
-    print(s.id_to_champ)
-    print(s.champion_to_traits)
-    print(s.trait_to_champions)
-    print(s.item_to_id)
-    print(s.id_to_item)
-    print(s.champ_id_to_tier)
-    print(s.id_to_item)
-    print(s.trait_to_sets)
-
-    # for i in s.comps:
-    #     a = s.comps[i]
-    #     print(a)
+    # # print()
+    # print(s.champ_to_id)
+    # print(s.id_to_champ)
+    # print(s.champion_to_traits)
+    # print(s.trait_to_champions)
+    # print(s.item_to_id)
+    # print(s.id_to_item)
+    # print(s.champ_id_to_tier)
+    # print(s.id_to_item)
+    # print(s.trait_to_sets)
+    #
+    for i in s.comps:
+        a = s.comps[i]
+        print(i, a)
 
     # s.read_comps("C:/Users/theerik/PycharmProjects/tft/data/comps.json")
     # s.number_to_names(

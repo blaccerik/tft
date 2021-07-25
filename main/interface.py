@@ -438,7 +438,7 @@ class App:
             # frame2.pack()
             # frame2.pack_propagate(False)
 
-    def add_item_card(self, needed_items, needed_parts, items_copy, frame):
+    def add_item_card(self, needed_items, needed_parts, items_copy, frame, item_to_champ_copy):
         no = ["orange red", "orange"]
         yes = ["green", "lime"]
         for i in range(len(needed_items)):
@@ -452,14 +452,25 @@ class App:
             add = False
             if item in items_copy:
                 items_copy.remove(item)
-                parent = tk.Frame(frame, bg=yes[i % 2], width=40, height=60)
+                parent = tk.Frame(frame, bg=yes[i % 2], width=40, height=80)
                 add = True
             else:
-                parent = tk.Frame(frame, bg=no[i % 2], width=40, height=60)
+                parent = tk.Frame(frame, bg=no[i % 2], width=40, height=80)
 
             # huge card
             parent.grid(column=i, row=0)
             parent.pack_propagate(False)
+
+            # label card
+            champ = None
+            for item_champ in item_to_champ_copy:
+                if item_champ[0] == item:
+                    champ = self.s.id_to_champ[item_champ[1]]
+                    item_to_champ_copy.remove(item_champ)
+                    break
+            # frame7 = tk.Frame(parent, bg="cyan", width=40, height=20)
+            frame7 = tk.Label(parent, text=champ, bg="azure", padx=17, pady=4, bd=0, font=self.font, width=1)
+            frame7.pack(side="top")
 
             # # top card
             # # frame1 = tk.Frame(parent, bg="azure", width=30, height=30)
@@ -526,6 +537,7 @@ class App:
         needed_parts = comp["needed_parts"]
         extra_items = comp["extra_items"]
         extra_parts = comp["extra_parts"]
+        item_to_champ = comp["item_to_champ"]
         # print(needed_items)
         # print(needed_parts)
         # print(extra_items)
@@ -537,7 +549,6 @@ class App:
         for frame in frames:
             for child in frame.winfo_children():
                 child.destroy()
-
 
         # make lists
         lista = needed_champs.copy()
@@ -551,11 +562,10 @@ class App:
         # extra champs
         self.add_champ_card(listb, champs, frames[0], 1)
         # items
-        no = ["orange red", "orange"]
-        yes = ["green", "lime"]
         items_copy = items.copy()
-        self.add_item_card(needed_items, needed_parts, items_copy, frames[1])
-        self.add_item_card(extra_items, extra_parts, items_copy, frames[2])
+        item_to_champ_copy = item_to_champ.copy()
+        self.add_item_card(needed_items, needed_parts, items_copy, frames[1], item_to_champ_copy)
+        self.add_item_card(extra_items, extra_parts, items_copy, frames[2], item_to_champ_copy)
 
         # for i in range(len(extra_items)):
         #     item = extra_items[i]

@@ -2,7 +2,7 @@ import json
 import time
 
 import requests
-import urllib.request
+# import urllib.request
 from selenium import webdriver
 from selenium.webdriver.support.wait import WebDriverWait
 
@@ -23,22 +23,27 @@ class WebScraper:
 
     def mobalytics(self, link):
         link1 = link[:25]
-        html = requests.get(link, headers={'User-Agent': 'Mozilla/5.0'}).text
+        s = requests.Session()
+        html = s.get(link).text
         parsed_html = BeautifulSoup(html, features="html.parser")
-        text = parsed_html.find_all("div", {"class": "m-1onxboh ex6nprs2"})
+        text = parsed_html.find("div", {"class": "m-1onxboh ex6nprs2"})
         final_list = []
-        print(text)
-        for row in text[0]:
+        for row in text:
             found = row.find_all(['a'])
             if len(found) > 0:
                 link2 = found[0]["href"]
                 link_final = link1 + link2
-                final_list.append(self.mobalytics2(link_final))
+                final_list.append(self.mobalytics2(link_final, s))
+            # break
+        # print(final_list)
+        # for i in final_list:
+        #     print(i)
         with open('comps_moba.json', 'w') as outfile:
             json.dump(final_list, outfile)
 
-    def mobalytics2(self, link):
-        html = requests.get(link, headers={'User-Agent': 'Mozilla/5.0'}).text
+    def mobalytics2(self, link, s):
+        html = s.get(link).text
+        # html = requests.get(link, headers={'User-Agent': 'Mozilla/5.0'}).text
         parsed_html = BeautifulSoup(html, features="html.parser")
         text = parsed_html.find_all("div", {"class": "enl0bsh0 m-17wd5gd e31gwcf1"})
         final = []
@@ -65,17 +70,21 @@ class WebScraper:
             item = row.find('img')["alt"]
             order.append(item)
 
-        # items
-        text = parsed_html.find_all("p", {"class": "m-1ycn726 elh7uow4"})
+        # items and their champ
+        # # find how many same element
+        # text1 = parsed_html.find_all("div", {"class": "m-1t1ung e1pfij5r1"})
+        # print(len(text1))
+        text = parsed_html.find_all("div", {"class": "m-1t1ung e1pfij5r1"})[2]
         all_items = []
         # print(text)
         for row in text:
-            item = row.text
-            all_items.append(item)
+            champ = row.find("div", {"class": "m-yk4g74 eqckakh2"}).text
+            for i in row.find_all("p", {"class": "m-1ycn726 elh7uow4"}):
+                all_items.append((i.text, champ))
 
         text = parsed_html.find("div", {"class": "e1ez9x2v0 m-560ppy e83jq8m4"})
         options = []
-        # print(text)
+        print(text)
         if text is not None:
             text2 = text.find_all('img', alt=True)
             for row in text2:
@@ -101,38 +110,12 @@ class WebScraper:
         return dicta
 
     def tftactics(self, link):
-        # cookies = dict(cookies_are='working')
-        # r = requests.get(link, cookies=cookies)
-        # print(r.text)
-
-        # s = requests.Session()
-        #
-        # html = s.get(link).text
-        # print(html)
-        # text = parsed_html.find_all("div", {"class": "col-12 col-lg-9 main"})
-        # using selenium as normal request wont work
-
-        # html = requests.get(link, headers={'User-Agent': 'Mozilla/5.0'}).text
-        # parsed_html = BeautifulSoup(html, features="html.parser")
-        # text = parsed_html.find_all("div", {"class": "col-12 col-lg-9 main"})
-        # print(text)
 
         driver = webdriver.Firefox()
         driver.get(link)
         WebDriverWait(driver, 17)
         driver.find_element_by_class_name("cmpboxbtns").find_element_by_id("cmpwelcomebtnyes").click()
-        # WebDriverWait(driver, 5)
         time.sleep(10)
-
-        # tt = driver.find_element_by_class_name("sidenav")
-        # print(tt)
-        # ttt = tt.find_elements_by_class_name("sidenav-link")
-        # print(ttt)
-        # ttt[1].click()
-        # tt.find("div", {"class": "sidenav-link"}).click()
-        # button.click()
-        # time.sleep(0.5)
-        time.sleep(0.5)
 
         a = driver.find_elements_by_class_name("team-portrait")
         for b in a:
