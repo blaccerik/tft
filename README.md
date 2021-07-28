@@ -39,10 +39,10 @@ How to use:
 * find interface.py file and run it, it should take some time to load but thats okay
 * the interface (shown above) should open
 * Champion/Item selector:  
-![image](https://user-images.githubusercontent.com/73612140/127325012-05fe3b49-8bf2-417e-ab3a-0d97b904ab85.png)
+![image](https://user-images.githubusercontent.com/73612140/127325012-05fe3b49-8bf2-417e-ab3a-0d97b904ab85.png)  
 type champion/item name into the white box and press enter/"?" to select the champion/item  
 * Your champions:  
-* ![image](https://user-images.githubusercontent.com/73612140/127325102-505d2c8e-21d6-476a-a694-99e8a010f16e.png)
+* ![image](https://user-images.githubusercontent.com/73612140/127325102-505d2c8e-21d6-476a-a694-99e8a010f16e.png)  
 if you have selected your champion/item then press right click to add it to the queue  
 if you want to increment champion/item number then press right click on it and left click do decrease it  
 if you want to remove something from the queue then just decrease it until it disappears  
@@ -60,11 +60,11 @@ if you want to change the delay then you can edit the code in interface.py press
 Its reccomended that you use bordeless mode for tft so you can swithc faster between windows  
 Calculate - Calcualtes the best comps for you based on what you have entered above  
 * Comps  
-* ![image](https://user-images.githubusercontent.com/73612140/127326454-68b1a1e0-0a85-4b79-b9ed-660f2af37e3c.png)  
+![image](https://user-images.githubusercontent.com/73612140/127326454-68b1a1e0-0a85-4b79-b9ed-660f2af37e3c.png)  
 System shows top 3 comps for you and how to play them  
 top 1 comp is the most top one  
 * Single comp  
-![image](https://user-images.githubusercontent.com/73612140/127329193-de95637d-cde1-4731-8fe8-06a2d7549298.png) 
+![image](https://user-images.githubusercontent.com/73612140/127329193-de95637d-cde1-4731-8fe8-06a2d7549298.png)  
 Blue - main comp, this is what you should try to build  
 Green - extra champs, use them to fill missing positions if you dont have all main comps champs  
 Yellow - Core items, build these first if possible  
