@@ -80,7 +80,7 @@ class Predict:
         for item in items:
             # item
             if item % 1000 > 10:
-                print(item)
+                # print(item)
                 if item in core_items:
                     core_items.remove(item)
                     some_list = []

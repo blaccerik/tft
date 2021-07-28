@@ -136,8 +136,12 @@ class Screen:
         """
         radius = 50
         dicta = {}
+        lista = []
         for champ_set in champions_coords:
-            champ_name = champ_set[0]
+            name = champ_set[0]
+            if name in self.s.item_to_id:
+                lista.append(self.s.item_to_id[name])
+                continue
             champ_x = champ_set[1]
             champ_y = champ_set[2]
             best = 0
@@ -162,11 +166,11 @@ class Screen:
                 value = 3
             else:
                 value = 9
-            if champ_name in dicta:
-                dicta[champ_name] += value
+            if name in dicta:
+                dicta[name] += value
             else:
-                dicta[champ_name] = value
-        return dicta
+                dicta[name] = value
+        return dicta, lista
 
     def cold_start(self):
         # prevent cold start
@@ -179,7 +183,7 @@ class Screen:
     def cather_data(self, show=False):
         store_champ_monitor = {"top": 790, "left": 320, "width": 831, "height": 45}
         me = False
-        acc = 0.10
+        acc = 0.01
 
         # get champs from store
         # if cant get data from store that means its other player
@@ -189,9 +193,9 @@ class Screen:
         if len(champions_in_store) > 0:
             me = True
         if me:
-            count_champ_monitor = {"top": 230, "left": 210, "width": 900, "height": 450}
+            count_champ_monitor = {"top": 230, "left": 135, "width": 990, "height": 450}
         else:
-            count_champ_monitor = {"top": 25, "left": 355, "width": 690, "height": 315}
+            count_champ_monitor = {"top": 25, "left": 355, "width": 820, "height": 315}
 
         # take picture of the champions
         half_img = self.take_picture(count_champ_monitor, self.color)
@@ -236,7 +240,7 @@ class Screen:
 
         # for boxes
         if show:
-            font = cv2.FONT_HERSHEY_PLAIN
+            font = cv2.FONT_HERSHEY_SIMPLEX
             colors = np.random.uniform(0, 255, size=(len(boxes), 3))
 
         champions_coords = []
@@ -247,20 +251,26 @@ class Screen:
                 champions_coords.append((label, x, y))
                 # show boxes
                 if show:
-                    confidence = str(round(confs[i], 2))
+                    confidence = str(int(confs[i] * 100))
                     color = colors[i]
+                    text = f"{label} {confidence}%"
                     cv2.rectangle(half_img, (x, y), (x + w, y + h), color, 2)
-                    cv2.putText(half_img, label + " " + confidence, (x, y + 20), font, 2, (255, 255, 255), 2)
+                    (ww, hh), _ = cv2.getTextSize(text, font, 0.4, 1)
+                    cv2.rectangle(half_img, (x, y), (x + ww, y + 11), color, -1)
+                    cv2.putText(half_img, text, (x, y + 9),
+                                      font, 0.4, (255,255,255), 1)
+
+                    # cv2.putText(half_img, (x + 2, y + 12), font, 1, color, 1)
 
         # show badge locations
         if show:
             for coord in badge_coords:
                 x = coord[1]
                 y = coord[2]
-                cv2.rectangle(half_img, (x, y), (x + 60, y + 60), (255, 255, 255), 1)
+                cv2.rectangle(half_img, (x - 10, y - 10), (x, y), (255, 255, 255), 1)
 
         # create champ dict
-        champ_dict = self.get_tier_dict(champions_coords, badge_coords)
+        champ_dict, item_list = self.get_tier_dict(champions_coords, badge_coords)
 
         # add champs from store
         for champ in champions_in_store:
@@ -273,81 +283,84 @@ class Screen:
             if cv2.waitKey(25) & 0xFF == ord("q"):
                 cv2.destroyAllWindows()
                 return
-        return me, champ_dict
+        return me, champ_dict, item_list
 
 
-    def main(self, control):
-
-        my_number = None
-        my_champ_dict = None
-        my_items = None
-
-        start_x = 1400
-        start_y = 170
-        shift = 63
-
-        score_range = 0.9
-        other_comps = {}
-
-        full_dict = {}
-
-        total_time = time.time()
-        # get data about all players
-        n = 0
-        for player_number in range(8):
-            # for fps
-            last_time = time.time()
-
-            # move to place
-            control.click_on_champ(start_x, start_y + shift * player_number)
-
-            # todo check if player is alive
-
-            # get champions
-            me, champ_dict = self.cather_data()
-            if me:
-                my_number = player_number
-                my_champ_dict = champ_dict
-            else:
-                # predict for other player
-                full_dict[n] = champ_dict
-                n += 1
-                # top5 = self.p.predict_main(champ_dict, [], many=5)
-                # best_score = None
-                #
-                # # find the most likely comps
-                # # and add them to dict to use later
-                # for top in top5:
-                #     score = top[0]
-                #     comp_key = top[1]
-                #     if best_score is None:
-                #         best_score = score
-                #
-                #     prod = score / best_score
-                #     if prod > score_range:
-                #         if comp_key in other_comps:
-                #             other_comps += 1
-                #         else:
-                #             other_comps[comp_key] = 1
-            print("time:", time.time() - last_time)
-
-        full_dict[8] = my_champ_dict
-        return full_dict
-        #
-        # # return my_champ_dict, other_comps
-        # # predict what you should build if you know what others are building
-        # top5 = self.p.predict_main(my_champ_dict, [], other_comps=other_comps, many=5)
-        # same_length(top5)
-        # print("total time:", time.time() - total_time)
-        # print(my_number)
-        # pass
+    # def main(self, control):
+    #
+    #     my_number = None
+    #     my_champ_dict = None
+    #     my_items = None
+    #
+    #     start_x = 1400
+    #     start_y = 170
+    #     shift = 63
+    #
+    #     score_range = 0.9
+    #     other_comps = {}
+    #
+    #     full_dict = {}
+    #
+    #     total_time = time.time()
+    #     # get data about all players
+    #     n = 0
+    #     for player_number in range(8):
+    #         # for fps
+    #         last_time = time.time()
+    #
+    #         # move to place
+    #         control.click_on_champ(start_x, start_y + shift * player_number)
+    #
+    #         # todo check if player is alive
+    #
+    #         # get champions
+    #         me, champ_dict = self.cather_data()
+    #         if me:
+    #             my_number = player_number
+    #             my_champ_dict = champ_dict
+    #         else:
+    #             # predict for other player
+    #             full_dict[n] = champ_dict
+    #             n += 1
+    #             # top5 = self.p.predict_main(champ_dict, [], many=5)
+    #             # best_score = None
+    #             #
+    #             # # find the most likely comps
+    #             # # and add them to dict to use later
+    #             # for top in top5:
+    #             #     score = top[0]
+    #             #     comp_key = top[1]
+    #             #     if best_score is None:
+    #             #         best_score = score
+    #             #
+    #             #     prod = score / best_score
+    #             #     if prod > score_range:
+    #             #         if comp_key in other_comps:
+    #             #             other_comps += 1
+    #             #         else:
+    #             #             other_comps[comp_key] = 1
+    #         print("time:", time.time() - last_time)
+    #
+    #     full_dict[8] = my_champ_dict
+    #     return full_dict
+    #     #
+    #     # # return my_champ_dict, other_comps
+    #     # # predict what you should build if you know what others are building
+    #     # top5 = self.p.predict_main(my_champ_dict, [], other_comps=other_comps, many=5)
+    #     # same_length(top5)
+    #     # print("total time:", time.time() - total_time)
+    #     # print(my_number)
+    #     # pass
 
 
 if __name__ == '__main__':
     #
     # mss.mss().shot(output="traits8.png")
-    time.sleep(1)
+    # time.sleep(1)
     s = Screen()
     c = Control()
+    while True:
+        me, champ_dict, item_list = s.cather_data(True)
+        print(me, champ_dict, item_list)
     # s.main_reader(False, c)
-    s.main(c)
+    # s.main(c)

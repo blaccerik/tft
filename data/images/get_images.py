@@ -6,13 +6,13 @@ from PIL import Image
 
 
 def main():
-    time.sleep(2)
+    time.sleep(1.5)
     print("-------")
     for i in range(2):
         nr = int(time.time() * 100)
         name = f"{nr}.png"
         mss.mss().shot(output=name)
-        print("done")
+        print(i, "done")
         time.sleep(1)
     pass
 
@@ -37,5 +37,5 @@ def main2():
         cv2.imwrite(name, a)
 
 if __name__ == '__main__':
-    # main()
-    main2()
+    main()
+    # main2()

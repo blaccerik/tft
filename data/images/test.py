@@ -10,14 +10,10 @@ def main():
     print("2")
     net.setPreferableBackend(cv2.dnn.DNN_BACKEND_CUDA)
     net.setPreferableTarget(cv2.dnn.DNN_TARGET_CUDA)
-    print("3")
-
-
     with open("network/classes.txt", "r") as f:
         classes = f.read().splitlines()
-
     monitor = {"top": 25, "left": 355, "width": 690, "height": 315}
-
+    print("3")
     while True:
         last_time = time.time()
         img = cv2.cvtColor(np.array(mss.mss().grab(monitor)), cv2.COLOR_RGBA2RGB)

@@ -20,8 +20,6 @@ class App:
         self.s = Static()
         self.p = Predict(self.s)
 
-        # self.image =
-
         self.screen = Screen()
         self.c = Control()
 
@@ -56,9 +54,6 @@ class App:
         self.item_dict = {}
         self.font = tkFont.Font(family="Lucida Grande", size=7)
         for i in range(1, 2):
-
-            # framel = tk.Frame(self.root, width=40, height=40)
-            # framel.grid(column=0, row=i)
 
             frame = tk.Frame(self.root)
             frame.grid(column=0, row=i)
@@ -120,9 +115,11 @@ class App:
     def press_button(self):
         time.sleep(1)
 
-        me, champ_dict = self.screen.cather_data()
+        me, champ_dict, item_list = self.screen.cather_data()
         # print(me)
         # print(champ_dict)
+        print(champ_dict)
+        print(item_list)
         if me:
             some = self.selected_champ
             for chap in champ_dict:
@@ -130,6 +127,16 @@ class App:
                 self.selected_champ = chap
                 self.add_champ_frame(0, def_value=amount)
             self.selected_champ = some
+
+            item_dict = {i: item_list.count(i) for i in item_list}
+            # print(item_dict)
+            some = self.selected_item
+            for item in item_dict:
+                amount = item_dict[item]
+                self.selected_item = self.s.id_to_item[item]
+                self.add_item_frame(0, def_value=amount)
+            # print(self.s.id_to_item, some)
+            self.selected_item = some
         # # full_dict = self.screen.main(self.c)
         # # print(full_dict)
         # for row in full_dict:
@@ -140,8 +147,6 @@ class App:
         #         self.add_champ_frame(0, def_value=nr)
 
     def press_button2(self):
-        # for row in self.champion_dict:
-        #
         row = 0
         champs = {}
         # champs
@@ -154,11 +159,8 @@ class App:
         # items
         for i in self.item_dict[row]:
             nr = self.item_dict[row][i]
-            # id = self.s.item_to_id[i]
             for _ in range(nr):
                 items.append(i)
-        # print(champs)
-        # print(items)
         top3 = self.p.predict_main(champs,
                                    items,
                                    many=3)

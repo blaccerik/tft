@@ -55,3 +55,12 @@ thresh
 khazix
 fiddlesticks
 velkoz
+bow
+cloak
+health
+gloves
+vest
+sword
+tear
+rod
+spatula
