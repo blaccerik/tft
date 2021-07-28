@@ -113,13 +113,11 @@ class App:
                 self.name_to_pic[int(name)] = j[1]
 
     def press_button(self):
-        time.sleep(1)
 
+        delay = 1  # seconds
+
+        time.sleep(delay)
         me, champ_dict, item_list = self.screen.cather_data()
-        # print(me)
-        # print(champ_dict)
-        print(champ_dict)
-        print(item_list)
         if me:
             some = self.selected_champ
             for chap in champ_dict:
