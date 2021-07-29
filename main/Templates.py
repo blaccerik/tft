@@ -3,7 +3,8 @@ import cv2
 
 class Templates:
 
-    link = "C:/Users/theerik/PycharmProjects/tft/data/templates"
+    def __init__(self, link):
+        self.link = link
 
     def get_badge_templates(self, color):
         """

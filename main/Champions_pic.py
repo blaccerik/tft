@@ -4,7 +4,8 @@ import PIL
 
 class Champions_pic:
 
-    link = "C:/Users/theerik/PycharmProjects/tft/data/champions_pic/edited"
+    def __init__(self, link):
+        self.link = link
 
     def get_champion_list(self):
         lista = []

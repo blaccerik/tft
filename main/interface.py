@@ -12,6 +12,7 @@ from Control import Control
 from Items import Items
 import time
 from Champions_pic import Champions_pic
+from path_manager import Path
 
 class App:
 
@@ -26,8 +27,10 @@ class App:
         self.id_to_champ = self.s.id_to_champ
         self.id_to_item = self.s.id_to_item
         self.name_to_pic = {}
-        self.read_champions_pic()
-        self.read_items()
+
+        p = Path()
+        self.read_champions_pic(p)
+        self.read_items(p)
 
         self.root = root
 
@@ -96,13 +99,13 @@ class App:
         frame4.grid_propagate(False)
         self.configure_screen(frame4)
 
-    def read_champions_pic(self):
-        c = Champions_pic()
+    def read_champions_pic(self, p):
+        c = Champions_pic(p.path_champions_pic)
         for i in c.get_champion_list():
             self.name_to_pic[i[0]] = i[1]
 
-    def read_items(self):
-        i = Items()
+    def read_items(self, p):
+        i = Items(p.path_items_pic)
         for j in i.get_item_list():
             name = j[0]
             # print(name)

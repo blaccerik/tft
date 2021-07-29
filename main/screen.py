@@ -11,6 +11,7 @@ from static_data import Static
 from Trait_to_champion import Calculator
 # from Items import Items
 from predict_best_comp import Predict, same_length
+from path_manager import Path
 
 class Screen:
     def __init__(self):
@@ -19,32 +20,29 @@ class Screen:
 
         self.s = Static()
 
-        self.c = Calculator(self.s)
+        p = Path()
+
+
+        # self.c = Calculator(self.s)
 
         self.sct = mss.mss()
         self.champs = {}
         self.items = {}
-        t = Templates()
+        t = Templates(p.path_templates)
         self.load_templates(t.get_badge_templates(self.color))
-        c = Champions()
+        c = Champions(p.path_champions)
         self.load_champions(c.get_champion_list(False))
         # i = Items()
         # self.load_items(i.get_item_list(self.color))
         self.p = Predict(self.s)
 
-
-        weights = "C:/Users/theerik/PycharmProjects/tft/data/images/network/yolov3_training_last.weights"
-        cfg = "C:/Users/theerik/PycharmProjects/tft/data/images/network/yolov3_testing.cfg"
-        classes_link = "C:/Users/theerik/PycharmProjects/tft/data/images/network/classes.txt"
         # read model
-        self.net = cv2.dnn.readNet(weights, cfg)
+        self.net = cv2.dnn.readNet(p.path_weights, p.path_cfg)
         # activate cuda
         self.net.setPreferableBackend(cv2.dnn.DNN_BACKEND_CUDA)
         self.net.setPreferableTarget(cv2.dnn.DNN_TARGET_CUDA)
-
-        with open(classes_link, "r") as f:
+        with open(p.path_classes, "r") as f:
             self.classes = f.read().splitlines()
-
         self.cold_start()
 
     def load_templates(self, templates: list):
@@ -269,7 +267,7 @@ class Screen:
                 y = coord[2]
                 cv2.rectangle(half_img, (x - 10, y - 10), (x, y), (255, 255, 255), 1)
 
-        # create champ dict
+        # # create champ dict
         champ_dict, item_list = self.get_tier_dict(champions_coords, badge_coords)
 
         # add champs from store
@@ -360,7 +358,12 @@ if __name__ == '__main__':
     s = Screen()
     c = Control()
     while True:
+        last_time = time.time()
+        # s.cather_data(True)
         me, champ_dict, item_list = s.cather_data(True)
         print(me, champ_dict, item_list)
+        print("fps:", 1 / (time.time() - last_time))
+        print("time:", time.time() - last_time)
+        time.sleep(0.01)
     # s.main_reader(False, c)
     # s.main(c)

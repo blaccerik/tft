@@ -1,4 +1,5 @@
 import json
+from path_manager import Path
 
 class Static:
 
@@ -13,25 +14,28 @@ class Static:
         self.id_to_item = {}
         self.item_to_id = {}
         self.champ_id_to_tier = {}
+
+        p = Path()
+
         # champ -> id
         # id -> champ
         # id -> tier
         # id -> traits
         # trait -> id
-        self.read_champions("C:/Users/theerik/PycharmProjects/tft/data/champions.json")
+        self.read_champions(p.path_champions_json)
 
         # item -> id
         # id -> item
-        self.read_items("C:/Users/theerik/PycharmProjects/tft/data/items.json")
+        self.read_items(p.path_items_json)
 
         # trait -> sets : ranger: [2,4] -> ranger needs 2 units for 1st tier and 4 for 2nd
-        self.read_traits("C:/Users/theerik/PycharmProjects/tft/data/traits.json")
+        self.read_traits(p.path_traits_json)
         # print(self.item_to_id)
         # read traits from tftactics json file
         # translate them to proper data like champs, items and parts
-        self.read_comps_tftactics("C:/Users/theerik/PycharmProjects/tft/data/comps_tactics.json", only_s=False)
+        self.read_comps_tftactics(p.path_tactics_json, only_s=False)
         # moba comps
-        self.read_comps_moba("C:/Users/theerik/PycharmProjects/tft/data/comps_moba.json", only_s=False)
+        self.read_comps_moba(p.path_moba_json, only_s=False)
 
     def read_champions(self, link):
         with open(link) as json_file:

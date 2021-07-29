@@ -10,7 +10,7 @@ def main():
     print("2")
     net.setPreferableBackend(cv2.dnn.DNN_BACKEND_CUDA)
     net.setPreferableTarget(cv2.dnn.DNN_TARGET_CUDA)
-    with open("network/classes.txt", "r") as f:
+    with open("../network/classes.txt", "r") as f:
         classes = f.read().splitlines()
     monitor = {"top": 25, "left": 355, "width": 690, "height": 315}
     print("3")

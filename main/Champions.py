@@ -3,7 +3,8 @@ import cv2
 
 class Champions:
 
-    link = "C:/Users/theerik/PycharmProjects/tft/data/champions_store/edited"
+    def __init__(self, link):
+        self.link = link
 
     def get_champion_list(self, color):
         lista = []

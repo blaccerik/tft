@@ -3,7 +3,8 @@ import PIL
 
 class Items:
 
-    link = "C:/Users/theerik/PycharmProjects/tft/data/items/edited"
+    def __init__(self, link):
+        self.link = link
 
     def get_item_list(self):
         lista = []

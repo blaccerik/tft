@@ -238,7 +238,7 @@ class Predict:
                  0.95 * core_p / (core_parts_size) + \
                  0.8 * extra_p / (extra_parts_size)
 
-        score = tier * (1.0 * score1 + 1.0 * score2 + 0.001)
+        score = tier * (1.0 * score1 + 1.5 * score2 + 0.001)
 
         if nerf_level == 0:
             final_score = 1 * score

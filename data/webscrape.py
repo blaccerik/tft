@@ -38,7 +38,7 @@ class WebScraper:
         # print(final_list)
         # for i in final_list:
         #     print(i)
-        with open('comps_moba.json', 'w') as outfile:
+        with open('jsons/comps_moba.json', 'w') as outfile:
             json.dump(final_list, outfile)
 
     def mobalytics2(self, link, s):
@@ -166,7 +166,7 @@ class WebScraper:
                 some_list.append(more_opt2["alt"].lower())
             dicta["options"] = some_list
             final_list.append(dicta)
-        with open('comps_tactics.json', 'w') as outfile:
+        with open('jsons/comps_tactics.json', 'w') as outfile:
             json.dump(final_list, outfile)
         driver.quit()
 
