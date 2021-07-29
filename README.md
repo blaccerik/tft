@@ -15,17 +15,9 @@ Disclaimer!
 * Current prediction algorithm only factors in your champions and /items. Since set 5.5 was recently released I dont have enough data to train nn which factors in other players builds, but it shouldn't make that big of a diffrence  
 
 Before you run it make sure that the paths to files are correct!  
-Open the following files and on the top there should be "C:/Users/theerik/PycharmProjects/tft/ xx / xx" line  
-change it to the path where you have it stored. For example in Champions.py  
-link = "C:/Users/theerik/PycharmProjects/tft/data/champions_store/edited" => link = "C:/Users/your_user/tft/champions_store/edited"  
-Files:  
-static_data.py  
-Champions.py  
-Champions_pic.py  
-Champions.py  
-Items.py  
-screen.py files can be found in https://drive.google.com/drive/folders/1UBTFQWdB7qEY0upLsa-DLtu_5XoCSP8Y?usp=sharing  
-Templates.py  
+Open path_manager.py and change path to your needs  
+Also in data/network there is missing one file named yolov3_training_last.weights (its too large to upload to git)  
+You need to download it from my drive https://drive.google.com/drive/folders/1UBTFQWdB7qEY0upLsa-DLtu_5XoCSP8Y?usp=sharing  
 
 Also make sure you have all the needed modules installed:  
 mss  
