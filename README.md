@@ -16,7 +16,7 @@ Disclaimer!
 
 Before you run it make sure that the paths to files are correct!  
 Open path_manager.py and change path to your needs  
-Also in data/network there is missing one file named yolov3_training_last.weights (its too large to upload to git)  
+Also in data/network there is missing one file named yolov3_training_last.weights (its too large for git)  
 You need to download it from my drive https://drive.google.com/drive/folders/1UBTFQWdB7qEY0upLsa-DLtu_5XoCSP8Y?usp=sharing  
 
 Also make sure you have all the needed modules installed:  
