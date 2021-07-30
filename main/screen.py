@@ -10,7 +10,7 @@ from Champions import Champions
 from static_data import Static
 from Trait_to_champion import Calculator
 # from Items import Items
-from predict_best_comp import Predict, same_length
+from predict_best_comp import Predict
 from path_manager import Path
 
 class Screen:

@@ -1,28 +1,27 @@
 import difflib
 import tkinter as tk
 import tkinter.font as tkFont
-import numpy as np
-from tkinter import *
-
+import time
+# import numpy as np
+# from tkinter import *
 from PIL import Image, ImageTk
 from predict_best_comp import Predict
 from static_data import Static
 from screen import Screen
 from Control import Control
 from Items import Items
-import time
 from Champions_pic import Champions_pic
 from path_manager import Path
 
 class App:
-
     def __init__(self, root):
-
+        print("load 1/3")
         self.s = Static()
         self.p = Predict(self.s)
-
-        self.screen = Screen()
-        self.c = Control()
+        print("load 2/3")
+        # self.screen = Screen()
+        # self.c = Control()
+        print("load 3/3")
 
         self.id_to_champ = self.s.id_to_champ
         self.id_to_item = self.s.id_to_item
@@ -35,9 +34,6 @@ class App:
         self.root = root
 
         # selectors
-        # framel = tk.Frame(self.root, width=40, height=25)
-        # framel.grid(column=0, row=0)
-
         frame = tk.Frame(self.root)
         frame.grid(column=0, row=0)
         # champions
@@ -163,7 +159,9 @@ class App:
             for _ in range(nr):
                 items.append(i)
         top3 = self.p.predict_main(champs,
+                                   champs,
                                    items,
+                                   9,
                                    many=3)
         for i in range(3):
             frames = self.frame_list_screen[i]
@@ -172,7 +170,7 @@ class App:
             # break
         # for i in self.p.s.comps:
         #     print(i, self.p.s.comps[i]["name"])
-        # same_length(top5)
+        self.p.same_length(top3)
 
     def click_on_champion_frame(self, event):
         nr = self.frame_list_champions.index(event.widget)
@@ -204,7 +202,7 @@ class App:
             frame2.grid_propagate(False)
             img = ImageTk.PhotoImage(image=self.name_to_pic[self.selected_champ])
             parent.img = img
-            frame2.create_image(0, 0, anchor=NW, image=img)
+            frame2.create_image(0, 0, anchor=tk.NW, image=img)
         else:
             frame2 = tk.Label(parent, bg="orange", text=self.selected_champ, padx=12, pady=9, bd=0, font=self.font, width=1)
             frame2.grid(column=0, row=0)
@@ -245,7 +243,7 @@ class App:
         frame2.grid_propagate(False)
         img = ImageTk.PhotoImage(image=self.name_to_pic[item_id])
         parent.img = img
-        frame2.create_image(0, 0, anchor=NW, image=img)
+        frame2.create_image(0, 0, anchor=tk.NW, image=img)
         # frame2 = tk.Frame(parent, bg="orange", width=30, height=30)
         # frame2.grid(column=0, row=0)
         frame2.bind("<Button-1>", self.left_click_champ)
@@ -433,7 +431,7 @@ class App:
                 frame2.pack_propagate(False)
                 img = ImageTk.PhotoImage(image=self.name_to_pic[name])
                 parent.img = img
-                frame2.create_image(0, 0, anchor=NW, image=img)
+                frame2.create_image(0, 0, anchor=tk.NW, image=img)
             else:
                 frame2 = tk.Label(parent, bg="azure", text=name, padx=12, pady=9, bd=0, font=self.font, width=1)
                 frame2.pack()
@@ -485,7 +483,7 @@ class App:
             # print(self.name_to_pic)
             img = ImageTk.PhotoImage(image=self.name_to_pic[item])
             parent.img = img
-            frame2.create_image(0, 0, anchor=NW, image=img)
+            frame2.create_image(0, 0, anchor=tk.NW, image=img)
 
             # bottom card
             frame2 = tk.Frame(parent, bg="cyan", width=40, height=25)
@@ -519,7 +517,7 @@ class App:
             # frame5.pack_propagate(False)
             img = ImageTk.PhotoImage(image=self.name_to_pic[name1])
             frame3.img = img
-            frame5.create_image(0, 0, anchor=NW, image=img)
+            frame5.create_image(0, 0, anchor=tk.NW, image=img)
 
             # frame6 = tk.Frame(frame4, bg="azure", width=20, height=20)
             # frame6 = tk.Label(frame4, bg="azure", text=name2, padx=20, pady=4, bd=0, font=self.font, width=0)
@@ -529,7 +527,7 @@ class App:
             # frame5.pack_propagate(False)
             img = ImageTk.PhotoImage(image=self.name_to_pic[name2])
             frame4.img = img
-            frame6.create_image(0, 0, anchor=NW, image=img)
+            frame6.create_image(0, 0, anchor=tk.NW, image=img)
 
     def add_comp_to_screen(self, comp_key, frames, champs, items):
         comp = self.s.comps[comp_key]
@@ -578,47 +576,7 @@ class App:
         #     print(part1, part2)
 
 
-
-def same_length(top5):
-    print("score key  cs   ss   es  s ci cp ei ep si")
-    for top in top5:
-        scr = "{:2.3f}".format(top[0])
-        key = "{:2}".format(top[1])
-        a = "{:2.2f}".format(top[2])
-        b = "{:2.2f}".format(top[3])
-        c = "{:2.2f}".format(top[4])
-        s = "{:2}".format(top[5])
-        sa = "{:2}".format(top[6])
-        sb = "{:2}".format(top[7])
-        sc = "{:2}".format(top[8])
-        sd = "{:2}".format(top[9])
-        ss = "{:2}".format(top[10])
-        print(scr, key, a,b,c,s,sa,sb,sc,sd,ss)
-
-
 if __name__ == '__main__':
-    # import tkinter as tk
-    # import tkinter.messagebox as msg
-
-
-    # def show(event=None):  # handler
-    #     msg.showinfo('name', 'Your name is ' + inp.get())
-    #
-    #
-    # m = tk.Tk()
-    #
-    # prompt = tk.Label(m, text='Name: ')
-    # prompt.pack(fill='x', side='left')
-    #
-    # inp = tk.Entry(m)
-    # inp.bind('<Return>', show)  # binding the Return event with an handler
-    # inp.pack(fill='x', side='left')
-    #
-    # ok = tk.Button(m, text='GO', command=show)
-    # ok.pack(fill='x', side='left')
-
-    # m.mainloop()
-
     root = tk.Tk()
     app = App(root)
     root.mainloop()
