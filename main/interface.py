@@ -19,8 +19,8 @@ class App:
         self.s = Static()
         self.p = Predict(self.s)
         print("load 2/3")
-        # self.screen = Screen()
-        # self.c = Control()
+        self.screen = Screen()
+        self.c = Control()
         print("load 3/3")
 
         self.id_to_champ = self.s.id_to_champ
@@ -52,7 +52,7 @@ class App:
         self.champion_dict = {}
         self.item_dict = {}
         self.font = tkFont.Font(family="Lucida Grande", size=7)
-        for i in range(1, 2):
+        for i in range(1, 9):
 
             frame = tk.Frame(self.root)
             frame.grid(column=0, row=i)
