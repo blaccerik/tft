@@ -4,7 +4,7 @@ import tkinter.font as tkFont
 import time
 # import numpy as np
 # from tkinter import *
-from PIL import Image, ImageTk
+from PIL import ImageTk
 from predict_best_comp import Predict
 from static_data import Static
 from screen import Screen
@@ -19,8 +19,8 @@ class App:
         self.s = Static()
         self.p = Predict(self.s)
         print("load 2/3")
-        self.screen = Screen()
-        self.c = Control()
+        # self.screen = Screen()
+        # self.c = Control()
         print("load 3/3")
 
         self.id_to_champ = self.s.id_to_champ

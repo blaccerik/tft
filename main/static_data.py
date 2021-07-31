@@ -128,6 +128,31 @@ class Static:
                     lista.append(i["min"])
                 self.trait_to_sets[name] = lista
 
+    def translate_name_to_id(self, input):
+        lista = []
+        for i in input:
+            if "-" in i:
+                # lee-sin :(
+                i = i.replace("-", "")
+            name = i.lower()
+            id = self.champ_to_id[name]
+            lista.append(id)
+        return lista
+
+    def number_to_names(self, lista):
+        final_list = []
+        for i in lista:
+            for n in self.champ_to_id:
+                if self.champ_to_id[n] == i:
+                    final_list.append(n)
+        print(final_list)
+
+    def number_to_items(self, lista):
+        final_list = []
+        for i in lista:
+            final_list.append(self.id_to_item[i])
+        print(final_list)
+
     def read_comps_tftactics(self, link, only_s=True):
         with open(link) as json_file:
             data = json.load(json_file)
@@ -356,49 +381,96 @@ class Static:
                             return
                         break
 
-    def translate_name_to_id(self, input):
+    def adjust_start_extra(self, start_champs, extra_champs):
         lista = []
-        for i in input:
-            if "-" in i:
-                # lee-sin :(
-                i = i.replace("-", "")
-            name = i.lower()
-            id = self.champ_to_id[name]
-            lista.append(id)
-        return lista
-
-    def number_to_names(self, lista):
-        final_list = []
+        for i in start_champs:
+            if self.champ_id_to_tier[i] > 1:
+                lista.append(i)
         for i in lista:
-            for n in self.champ_to_id:
-                if self.champ_to_id[n] == i:
-                    final_list.append(n)
-        print(final_list)
-
-    def number_to_items(self, lista):
-        final_list = []
+            start_champs.remove(i)
+            extra_champs.append(i)
+        lista = []
+        for i in extra_champs:
+            if self.champ_id_to_tier[i] < 2:
+                lista.append(i)
         for i in lista:
-            final_list.append(self.id_to_item[i])
-        print(final_list)
+            extra_champs.remove(i)
+            start_champs.append(i)
 
-    def only_letters(self):
+    def find_traits(self, core_champs, start_champs, extra_champs):
+
         """
-        used in screen.py
-        to only use letters that are in trait names
-        :return:
+        0,1 <= core + start
+        0,1 => start + x, x: len(start) == 3
+
+        5 + 1
+        5 + 1 + x(2) => max traits
+
+        list (possible)
+        find all comibinations => list = [0,1,2]
+        => 01 02 12
+        find traits with them
+        find "score"
+        sort
+        find best
         """
-        seta = set()
-        for i in self.champion_to_traits:
-            seta.update(list(i))
-            seta.update(i[0].capitalize())
-        # for i in self.trait_to_champions:
-        #     seta.update(list(i))
-        seta = list(seta)
-        seta.sort()
-        text = ""
-        for i in seta:
-            text += i
-        print(text)
+
+        print(core_champs)
+        print(start_champs)
+        print(extra_champs)
+
+        lista = core_champs + start_champs + extra_champs
+        print(lista)
+        # start traits:
+        dicta = {}
+        listb = []
+        for i in lista:
+            if self.champ_id_to_tier[i] < 2:
+                listb.append(i)
+                a = self.champion_to_traits[i]
+                for j in a:
+                    if j in dicta:
+                        dicta[j] += 1
+                    else:
+                        dicta[j] = 1
+        print(listb)
+        self.number_to_names(listb)
+        self.number_to_names(lista)
+        print(dicta)
+        print(self.trait_to_sets)
+    def adjust_comps(self):
+        for comp_key in self.comps:
+            comp = self.comps[comp_key]
+            if len(comp) == 1:
+                continue
+            print(comp["name"])
+            core_champs = comp["needed_champs"]
+            start_champs = comp["early_champs"]
+            extra_champs = comp["extra_champs"]
+            self.adjust_start_extra(start_champs, extra_champs)
+            self.find_traits(core_champs, start_champs, extra_champs)
+            # print("core", core_champs)
+            # print("start", start_champs)
+            # print("extra", extra_champs)
+            # self.number_to_names(core_champs)
+            # self.number_to_names(start_champs)
+            # self.number_to_names(extra_champs)
+
+
+
+
+            # core_champs_size = len(core_champs)
+            # start_champs_size = len(start_champs)
+            # extra_champs_size = len(extra_champs)
+            #
+            # core_items = comp["needed_items"].copy()
+            # core_parts = comp["needed_parts"].copy()
+            # core_parts_size = len(core_items) * 2
+            #
+            # extra_items = comp["extra_items"].copy()
+            # extra_parts = comp["extra_parts"].copy()
+            # extra_parts_size = len(extra_items) * 2
+            break
 
 def item_to_parts(item, needed_parts):
     # for normal items
@@ -406,17 +478,6 @@ def item_to_parts(item, needed_parts):
     b = item // 10
     needed_parts.append(a)
     needed_parts.append(b)
-    # if item < 100:
-    #     for d in str(item):
-    #         needed_parts.append(int(d))
-    # # for shadow items
-    # else:
-    #     normal = item % 1000
-    #     # parts = [int(d) for d in str(normal)]
-    #     for d in str(normal):
-    #         nr = int(d)
-    #         needed_parts.append(nr)
-    #         needed_parts.append(nr + 1000)
 
 
 if __name__ == '__main__':
@@ -436,9 +497,19 @@ if __name__ == '__main__':
     # print(s.id_to_item)
     # print(s.trait_to_sets)
     #
+    # for i in s.comps:
+    #     a = s.comps[i]
+    #     print(i, a)
+
+    s.adjust_comps()
+
     for i in s.comps:
         a = s.comps[i]
-        print(i, a)
+        if len(a) == 1:
+            continue
+        # print(a)
+        print(i, a["needed_champs"], a['early_champs'], a['extra_champs'])
+        break
 
     # s.read_comps("C:/Users/theerik/PycharmProjects/tft/data/comps.json")
     # s.number_to_names(

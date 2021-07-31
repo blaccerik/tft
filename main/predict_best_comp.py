@@ -5,7 +5,7 @@ from calculation import Math
 class Predict:
     def __init__(self, static):
         self.s = static
-        self.m = Math()
+        self.m = Math(self.s)
         # self.s.comps
         # print(self.comps.keys())
         # self.champion_to_traits = self.s.champion_to_traits
