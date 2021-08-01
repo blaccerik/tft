@@ -1,3 +1,4 @@
+import itertools
 import json
 from path_manager import Path
 
@@ -397,6 +398,53 @@ class Static:
             extra_champs.remove(i)
             start_champs.append(i)
 
+    def find_best_champs(self, my_tier_0_1, all_tier_0_1, current_traits_0_1, need_start, start_champs):
+        # remove overlap
+        for i in my_tier_0_1:
+            if i in all_tier_0_1:
+                all_tier_0_1.remove(i)
+        indexes = list(range(0, len(all_tier_0_1)))
+        # find the index combination
+        best_score = 0
+        best_champs = []
+        for combination in itertools.combinations(indexes, need_start):
+            current_traits_copy = current_traits_0_1.copy()
+            # find modified traits
+            champs = []
+            for i in combination:
+                champ = all_tier_0_1[i]
+                traits = self.champion_to_traits[champ]
+                champs.append(champ)
+                for trait in traits:
+                    if trait in current_traits_copy:
+                        current_traits_copy[trait] += 1
+                    else:
+                        current_traits_copy[trait] = 1
+            # score
+            points = 0
+            for i in current_traits_copy:
+                value = current_traits_copy[i]
+                sets = self.trait_to_sets[i]
+                for j in sets:
+                    if value >= j:
+                        points += 1
+                    else:
+                        if value > 2 and value not in sets:
+                            points += 0.5
+                        break
+            # find best score
+            if points > best_score:
+                best_score = points
+                best_champs = [combination]
+            elif points == best_score:
+                best_champs.append(combination)
+        # add champs to list
+        for i in best_champs:
+            for j in i:
+                champ = all_tier_0_1[j]
+                if champ not in start_champs:
+                    start_champs.append(champ)
+
     def find_traits(self, core_champs, start_champs, extra_champs):
 
         """
@@ -415,62 +463,89 @@ class Static:
         find best
         """
 
-        print(core_champs)
-        print(start_champs)
-        print(extra_champs)
+        min_number_of_champions = 2
 
-        lista = core_champs + start_champs + extra_champs
-        print(lista)
-        # start traits:
-        dicta = {}
-        listb = []
-        for i in lista:
-            if self.champ_id_to_tier[i] < 2:
-                listb.append(i)
-                a = self.champion_to_traits[i]
+        need_start = max(min_number_of_champions - len(start_champs), 0)
+        need_extra = max(min_number_of_champions - len(extra_champs) - 1, 0)
+
+        # find lists with specific tiers
+        all_tier_0_1 = []
+        all_tier_2_3_4 = []
+        for i in self.champ_id_to_tier:
+            tier = self.champ_id_to_tier[i]
+            if tier < 2:
+                all_tier_0_1.append(i)
+            else:
+                all_tier_2_3_4.append(i)
+
+        all_champs = core_champs + start_champs + extra_champs
+        current_traits_0_1 = {}
+        current_traits_2_3_4 = {}
+        my_tier_0_1 = []
+        my_tier_2_3_4 = []
+        # sort champs to tiers and find their traits
+        for i in all_champs:
+            a = self.champion_to_traits[i]
+            tier = self.champ_id_to_tier[i]
+            if tier < 2:
+                my_tier_0_1.append(i)
                 for j in a:
-                    if j in dicta:
-                        dicta[j] += 1
+                    if j in current_traits_0_1:
+                        current_traits_0_1[j] += 1
                     else:
-                        dicta[j] = 1
-        print(listb)
-        self.number_to_names(listb)
-        self.number_to_names(lista)
-        print(dicta)
-        print(self.trait_to_sets)
+                        current_traits_0_1[j] = 1
+            elif tier == 2:
+                my_tier_2_3_4.append(i)
+                for j in a:
+                    if j in current_traits_0_1:
+                        current_traits_0_1[j] += 1
+                    else:
+                        current_traits_0_1[j] = 1
+            else:
+                my_tier_2_3_4.append(i)
+            for j in a:
+                if j in current_traits_2_3_4:
+                    current_traits_2_3_4[j] += 1
+                else:
+                    current_traits_2_3_4[j] = 1
+        # print(current_traits_0_1)
+        self.find_best_champs(my_tier_0_1, all_tier_0_1, current_traits_0_1, need_start, start_champs)
+        self.find_best_champs(my_tier_2_3_4, all_tier_2_3_4, current_traits_2_3_4, need_extra, extra_champs)
+
+
     def adjust_comps(self):
         for comp_key in self.comps:
             comp = self.comps[comp_key]
             if len(comp) == 1:
                 continue
-            print(comp["name"])
+            # print(comp["name"])
             core_champs = comp["needed_champs"]
             start_champs = comp["early_champs"]
             extra_champs = comp["extra_champs"]
+            # print("----")
+            # print(core_champs)
+            # print(start_champs)
+            # print(extra_champs)
             self.adjust_start_extra(start_champs, extra_champs)
+            # print("----")
+            # core_champs = comp["needed_champs"]
+            # start_champs = comp["early_champs"]
+            # extra_champs = comp["extra_champs"]
+            # print(core_champs)
+            # print(start_champs)
+            # print(extra_champs)
             self.find_traits(core_champs, start_champs, extra_champs)
-            # print("core", core_champs)
-            # print("start", start_champs)
-            # print("extra", extra_champs)
+            # print("----")
+            # core_champs = comp["needed_champs"]
+            # start_champs = comp["early_champs"]
+            # extra_champs = comp["extra_champs"]
+            # print(core_champs)
+            # print(start_champs)
+            # print(extra_champs)
             # self.number_to_names(core_champs)
             # self.number_to_names(start_champs)
             # self.number_to_names(extra_champs)
-
-
-
-
-            # core_champs_size = len(core_champs)
-            # start_champs_size = len(start_champs)
-            # extra_champs_size = len(extra_champs)
-            #
-            # core_items = comp["needed_items"].copy()
-            # core_parts = comp["needed_parts"].copy()
-            # core_parts_size = len(core_items) * 2
-            #
-            # extra_items = comp["extra_items"].copy()
-            # extra_parts = comp["extra_parts"].copy()
-            # extra_parts_size = len(extra_items) * 2
-            break
+            # break
 
 def item_to_parts(item, needed_parts):
     # for normal items
@@ -503,6 +578,7 @@ if __name__ == '__main__':
 
     s.adjust_comps()
 
+    print("comps:")
     for i in s.comps:
         a = s.comps[i]
         if len(a) == 1:

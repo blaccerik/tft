@@ -17,10 +17,11 @@ class App:
     def __init__(self, root):
         print("load 1/3")
         self.s = Static()
+        self.s.adjust_comps()
         self.p = Predict(self.s)
         print("load 2/3")
-        # self.screen = Screen()
-        # self.c = Control()
+        self.screen = Screen()
+        self.c = Control()
         print("load 3/3")
 
         self.id_to_champ = self.s.id_to_champ
@@ -57,7 +58,7 @@ class App:
             frame = tk.Frame(self.root)
             frame.grid(column=0, row=i)
 
-            frame1 = tk.Frame(frame, bg=test[i % 2], width=390, height=40)
+            frame1 = tk.Frame(frame, bg=test[i % 2], width=420, height=40)
             frame1.grid(column=0, row=0)
             frame1.grid_propagate(False)
             frame1.bind("<Button-3>", self.click_on_champion_frame)
@@ -77,7 +78,7 @@ class App:
 
         # frame3l = tk.Frame(self.root, width=40, height=52)
         # frame3l.grid(column=0, row=10)
-        frame3 = tk.Frame(self.root, width=690, height=52, bg="pink")
+        frame3 = tk.Frame(self.root, width=720, height=53, bg="pink")
         frame3.grid(column=0, row=10)
         frame3.grid_propagate(False)
 
@@ -88,12 +89,41 @@ class App:
         button2.grid(column=0, row=1)
         # button2.grid_propagate(False)
 
+        self.inc_store = tk.IntVar()
+        button3 = tk.Checkbutton(frame3, text="Inc store", variable=self.inc_store)
+        button3.grid(column=1, row=0)
+
+        self.my_level = 1
+        self.my_level_text = tk.StringVar()
+        self.my_level_text.set("Level: 1")
+
+        self.level_button = tk.Button(frame3, width=9, textvariable=self.my_level_text, relief=tk.RAISED)
+        self.level_button.bind("<Button-1>", self.left_click_level)
+        self.level_button.bind("<Button-3>", self.right_click_level)
+        self.level_button.grid(column=1, row=1)
+
         # frame4 = tk.Frame(self.root, width=40, height=240)
         # frame4.grid(column=0, row=11)
-        frame4 = tk.Frame(self.root, width=690, height=240)
+        frame4 = tk.Frame(self.root, width=720, height=240)
         frame4.grid(column=0, row=11)
         frame4.grid_propagate(False)
         self.configure_screen(frame4)
+
+    def right_click_level(self, event=None):
+        if self.my_level != 9:
+            event.widget.configure(relief=tk.SUNKEN)
+            self.my_level += 1
+            self.my_level_text.set(f"Level: {self.my_level}")
+        self.level_button.after(100, lambda: self.level_button.config(relief=tk.SUNKEN))
+        self.level_button.after(150, lambda: self.level_button.config(relief=tk.RAISED))
+
+    def left_click_level(self, event=None):
+        if self.my_level != 1:
+            event.widget.configure(relief=tk.SUNKEN)
+            self.my_level -= 1
+            self.my_level_text.set(f"Level: {self.my_level}")
+        self.level_button.after(100, lambda: self.level_button.config(relief=tk.SUNKEN))
+        self.level_button.after(150, lambda: self.level_button.config(relief=tk.RAISED))
 
     def read_champions_pic(self, p):
         c = Champions_pic(p.path_champions_pic)
@@ -116,7 +146,7 @@ class App:
         delay = 1  # seconds
 
         time.sleep(delay)
-        me, champ_dict, item_list = self.screen.cather_data()
+        me, champ_dict, item_list = self.screen.cather_data(store=self.inc_store.get())
         if me:
             some = self.selected_champ
             for chap in champ_dict:
@@ -161,7 +191,7 @@ class App:
         top3 = self.p.predict_main(champs,
                                    champs,
                                    items,
-                                   9,
+                                   self.my_level,
                                    many=3)
         for i in range(3):
             frames = self.frame_list_screen[i]
@@ -265,7 +295,7 @@ class App:
 
 
     def configure_champion_selector(self, frame):
-        canvas = tk.Frame(frame, bg="red", width=390, height=25)
+        canvas = tk.Frame(frame, bg="red", width=420, height=25)
         canvas.grid(column=0, row=0)
         canvas.grid_propagate(False)
 
@@ -394,11 +424,11 @@ class App:
         test = ["red", "blue"]
         test2 = ["grey", "lightgrey"]
         for i in range(3):
-            frame1 = tk.Frame(frame, bg=test[i % 2], width=690, height=80)
+            frame1 = tk.Frame(frame, bg=test[i % 2], width=720, height=80)
             frame1.grid(column=0, row=i)
             frame1.grid_propagate(False)
             # champions
-            frame2 = tk.Frame(frame1, bg=test2[i % 2], width=270, height=80)
+            frame2 = tk.Frame(frame1, bg=test2[i % 2], width=300, height=80)
             frame2.grid(column=0, row=0)
             frame2.grid_propagate(False)
             # core items

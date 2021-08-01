@@ -178,15 +178,15 @@ class Screen:
         output_layers_names = self.net.getUnconnectedOutLayersNames()
         self.net.forward(output_layers_names)
 
-    def cather_data(self, show=False):
+    def cather_data(self, show=False, store=False):
         store_champ_monitor = {"top": 790, "left": 320, "width": 831, "height": 45}
         me = False
         acc = 0.01
 
         # get champs from store
         # if cant get data from store that means its other player
-        store = self.take_picture(store_champ_monitor, False)
-        champions_in_store = self.match_champ(store)
+        store_picture = self.take_picture(store_champ_monitor, False)
+        champions_in_store = self.match_champ(store_picture)
 
         if len(champions_in_store) > 0:
             me = True
@@ -271,11 +271,12 @@ class Screen:
         champ_dict, item_list = self.get_tier_dict(champions_coords, badge_coords)
 
         # add champs from store
-        for champ in champions_in_store:
-            if champ in champ_dict:
-                champ_dict[champ] += 1
-            else:
-                champ_dict[champ] = 1
+        if store:
+            for champ in champions_in_store:
+                if champ in champ_dict:
+                    champ_dict[champ] += 1
+                else:
+                    champ_dict[champ] = 1
         if show:
             cv2.imshow("b", half_img)
             if cv2.waitKey(25) & 0xFF == ord("q"):

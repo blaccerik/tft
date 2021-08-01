@@ -175,8 +175,6 @@ class Predict:
                      my_items: list,
                      level,
                      many=5):
-
-
         top5 = []
         size = len(my_champions)
         if size == 0:
