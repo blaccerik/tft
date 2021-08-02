@@ -1,28 +1,28 @@
 import difflib
 import tkinter as tk
 import tkinter.font as tkFont
-import numpy as np
-from tkinter import *
-
-from PIL import Image, ImageTk
+import time
+# import numpy as np
+# from tkinter import *
+from PIL import ImageTk
 from predict_best_comp import Predict
 from static_data import Static
 from screen import Screen
 from Control import Control
 from Items import Items
-import time
 from Champions_pic import Champions_pic
 from path_manager import Path
 
 class App:
-
     def __init__(self, root):
-
+        print("load 1/3")
         self.s = Static()
+        self.s.adjust_comps()
         self.p = Predict(self.s)
-
-        self.screen = Screen()
+        print("load 2/3")
         self.c = Control()
+        self.screen = Screen(self.c)
+        print("load 3/3")
 
         self.id_to_champ = self.s.id_to_champ
         self.id_to_item = self.s.id_to_item
@@ -35,9 +35,6 @@ class App:
         self.root = root
 
         # selectors
-        # framel = tk.Frame(self.root, width=40, height=25)
-        # framel.grid(column=0, row=0)
-
         frame = tk.Frame(self.root)
         frame.grid(column=0, row=0)
         # champions
@@ -56,13 +53,19 @@ class App:
         self.champion_dict = {}
         self.item_dict = {}
         self.font = tkFont.Font(family="Lucida Grande", size=7)
-        for i in range(1, 2):
+        for i in range(1, 9):
 
             frame = tk.Frame(self.root)
             frame.grid(column=0, row=i)
+            if i == 1:
+                text = "me"
+            else:
+                text = i - 1
+            label = tk.Label(frame, bg=test[(i + 1) % 2], text=text, width=2, padx=7, pady=12, bd=2, font=self.font)
+            label.grid(column=0, row=0)
 
             frame1 = tk.Frame(frame, bg=test[i % 2], width=390, height=40)
-            frame1.grid(column=0, row=0)
+            frame1.grid(column=1, row=0)
             frame1.grid_propagate(False)
             frame1.bind("<Button-3>", self.click_on_champion_frame)
             self.frame_list_champions.append(frame1)
@@ -70,7 +73,7 @@ class App:
             self.frame_dict_champions[i - 1] = {}
 
             frame2 = tk.Frame(frame, bg=test[(i + 1) % 2], width=300, height=40)
-            frame2.grid(column=1, row=0)
+            frame2.grid(column=2, row=0)
             frame2.grid_propagate(False)
             frame2.bind("<Button-3>", self.click_on_item_frame)
             self.frame_list_items.append(frame2)
@@ -78,10 +81,9 @@ class App:
             self.frame_dict_items[i - 1] = {}
 
         # buttons
-
         # frame3l = tk.Frame(self.root, width=40, height=52)
         # frame3l.grid(column=0, row=10)
-        frame3 = tk.Frame(self.root, width=690, height=52, bg="pink")
+        frame3 = tk.Frame(self.root, width=720, height=53, bg="pink")
         frame3.grid(column=0, row=10)
         frame3.grid_propagate(False)
 
@@ -92,12 +94,44 @@ class App:
         button2.grid(column=0, row=1)
         # button2.grid_propagate(False)
 
+        self.inc_store = tk.IntVar()
+        button3 = tk.Checkbutton(frame3, text="Inc store", variable=self.inc_store)
+        button3.grid(column=1, row=0)
+        self.only_me = tk.IntVar()
+        button4 = tk.Checkbutton(frame3, text="Only me", variable=self.only_me)
+        button4.grid(column=2, row=0)
+
+        self.my_level = 1
+        self.my_level_text = tk.StringVar()
+        self.my_level_text.set("Level: 1")
+
+        self.level_button = tk.Button(frame3, width=9, textvariable=self.my_level_text, relief=tk.RAISED)
+        self.level_button.bind("<Button-1>", self.left_click_level)
+        self.level_button.bind("<Button-3>", self.right_click_level)
+        self.level_button.grid(column=1, row=1)
+
         # frame4 = tk.Frame(self.root, width=40, height=240)
         # frame4.grid(column=0, row=11)
-        frame4 = tk.Frame(self.root, width=690, height=240)
+        frame4 = tk.Frame(self.root, width=720, height=240)
         frame4.grid(column=0, row=11)
         frame4.grid_propagate(False)
         self.configure_screen(frame4)
+
+    def right_click_level(self, event=None):
+        if self.my_level != 9:
+            event.widget.configure(relief=tk.SUNKEN)
+            self.my_level += 1
+            self.my_level_text.set(f"Level: {self.my_level}")
+        self.level_button.after(100, lambda: self.level_button.config(relief=tk.SUNKEN))
+        self.level_button.after(150, lambda: self.level_button.config(relief=tk.RAISED))
+
+    def left_click_level(self, event=None):
+        if self.my_level != 1:
+            event.widget.configure(relief=tk.SUNKEN)
+            self.my_level -= 1
+            self.my_level_text.set(f"Level: {self.my_level}")
+        self.level_button.after(100, lambda: self.level_button.config(relief=tk.SUNKEN))
+        self.level_button.after(150, lambda: self.level_button.config(relief=tk.RAISED))
 
     def read_champions_pic(self, p):
         c = Champions_pic(p.path_champions_pic)
@@ -120,13 +154,22 @@ class App:
         delay = 1  # seconds
 
         time.sleep(delay)
-        me, champ_dict, item_list = self.screen.cather_data()
-        if me:
+        # me, champ_dict, item_list = self.screen.main(store=self.inc_store.get())
+        full_dict = self.screen.main(store=self.inc_store.get(), only_me=self.only_me.get(), show=False)
+        for i in full_dict:
+            if i == "me":
+                champ_dict = full_dict["me"][0]
+                item_list = full_dict["me"][1]
+                number = 0
+            else:
+                champ_dict = full_dict[i][0]
+                item_list = full_dict[i][1]
+                number = i
             some = self.selected_champ
             for chap in champ_dict:
                 amount = champ_dict[chap]
                 self.selected_champ = chap
-                self.add_champ_frame(0, def_value=amount)
+                self.add_champ_frame(number, def_value=amount)
             self.selected_champ = some
 
             item_dict = {i: item_list.count(i) for i in item_list}
@@ -135,44 +178,44 @@ class App:
             for item in item_dict:
                 amount = item_dict[item]
                 self.selected_item = self.s.id_to_item[item]
-                self.add_item_frame(0, def_value=amount)
+                self.add_item_frame(number, def_value=amount)
             # print(self.s.id_to_item, some)
             self.selected_item = some
-        # # full_dict = self.screen.main(self.c)
-        # # print(full_dict)
-        # for row in full_dict:
-        #     comp = full_dict[row]
-        #     for i in comp:
-        #         nr = comp[i]
-        #         self.selected_champ = i
-        #         self.add_champ_frame(0, def_value=nr)
 
     def press_button2(self):
-        row = 0
-        champs = {}
-        # champs
-        for i in self.champion_dict[row]:
-            nr = self.champion_dict[row][i]
-            if i in self.s.champ_to_id:
+        my_row = 0
+        my_champs = {}
+        all_champs = {}
+        my_items = []
+        for row in self.champion_dict:
+            if row == my_row:
+                # champs
+                for i in self.champion_dict[row]:
+                    nr = self.champion_dict[row][i]
+                    if i in self.s.champ_to_id:
+                        id = self.s.champ_to_id[i]
+                        my_champs[id] = nr
+                # items
+                for i in self.item_dict[row]:
+                    nr = self.item_dict[row][i]
+                    for _ in range(nr):
+                        my_items.append(i)
+            for i in self.champion_dict[row]:
+                nr = self.champion_dict[row][i]
                 id = self.s.champ_to_id[i]
-                champs[id] = nr
-        items = []
-        # items
-        for i in self.item_dict[row]:
-            nr = self.item_dict[row][i]
-            for _ in range(nr):
-                items.append(i)
-        top3 = self.p.predict_main(champs,
-                                   items,
-                                   many=3)
+                if id in all_champs:
+                    all_champs[id] += nr
+                else:
+                    all_champs[id] = nr
+        top3 = self.p.predict_main(my_champs, all_champs, my_items, self.my_level, many=3)
         for i in range(3):
             frames = self.frame_list_screen[i]
             key = top3[i][1]
-            self.add_comp_to_screen(key, frames, champs, items)
+            self.add_comp_to_screen(key, frames, my_champs, my_items)
             # break
         # for i in self.p.s.comps:
         #     print(i, self.p.s.comps[i]["name"])
-        # same_length(top5)
+        self.p.same_length(top3)
 
     def click_on_champion_frame(self, event):
         nr = self.frame_list_champions.index(event.widget)
@@ -204,7 +247,7 @@ class App:
             frame2.grid_propagate(False)
             img = ImageTk.PhotoImage(image=self.name_to_pic[self.selected_champ])
             parent.img = img
-            frame2.create_image(0, 0, anchor=NW, image=img)
+            frame2.create_image(0, 0, anchor=tk.NW, image=img)
         else:
             frame2 = tk.Label(parent, bg="orange", text=self.selected_champ, padx=12, pady=9, bd=0, font=self.font, width=1)
             frame2.grid(column=0, row=0)
@@ -245,7 +288,7 @@ class App:
         frame2.grid_propagate(False)
         img = ImageTk.PhotoImage(image=self.name_to_pic[item_id])
         parent.img = img
-        frame2.create_image(0, 0, anchor=NW, image=img)
+        frame2.create_image(0, 0, anchor=tk.NW, image=img)
         # frame2 = tk.Frame(parent, bg="orange", width=30, height=30)
         # frame2.grid(column=0, row=0)
         frame2.bind("<Button-1>", self.left_click_champ)
@@ -267,7 +310,7 @@ class App:
 
 
     def configure_champion_selector(self, frame):
-        canvas = tk.Frame(frame, bg="red", width=390, height=25)
+        canvas = tk.Frame(frame, bg="red", width=420, height=25)
         canvas.grid(column=0, row=0)
         canvas.grid_propagate(False)
 
@@ -396,11 +439,11 @@ class App:
         test = ["red", "blue"]
         test2 = ["grey", "lightgrey"]
         for i in range(3):
-            frame1 = tk.Frame(frame, bg=test[i % 2], width=690, height=80)
+            frame1 = tk.Frame(frame, bg=test[i % 2], width=720, height=80)
             frame1.grid(column=0, row=i)
             frame1.grid_propagate(False)
             # champions
-            frame2 = tk.Frame(frame1, bg=test2[i % 2], width=270, height=80)
+            frame2 = tk.Frame(frame1, bg=test2[i % 2], width=300, height=80)
             frame2.grid(column=0, row=0)
             frame2.grid_propagate(False)
             # core items
@@ -433,7 +476,7 @@ class App:
                 frame2.pack_propagate(False)
                 img = ImageTk.PhotoImage(image=self.name_to_pic[name])
                 parent.img = img
-                frame2.create_image(0, 0, anchor=NW, image=img)
+                frame2.create_image(0, 0, anchor=tk.NW, image=img)
             else:
                 frame2 = tk.Label(parent, bg="azure", text=name, padx=12, pady=9, bd=0, font=self.font, width=1)
                 frame2.pack()
@@ -485,7 +528,7 @@ class App:
             # print(self.name_to_pic)
             img = ImageTk.PhotoImage(image=self.name_to_pic[item])
             parent.img = img
-            frame2.create_image(0, 0, anchor=NW, image=img)
+            frame2.create_image(0, 0, anchor=tk.NW, image=img)
 
             # bottom card
             frame2 = tk.Frame(parent, bg="cyan", width=40, height=25)
@@ -519,7 +562,7 @@ class App:
             # frame5.pack_propagate(False)
             img = ImageTk.PhotoImage(image=self.name_to_pic[name1])
             frame3.img = img
-            frame5.create_image(0, 0, anchor=NW, image=img)
+            frame5.create_image(0, 0, anchor=tk.NW, image=img)
 
             # frame6 = tk.Frame(frame4, bg="azure", width=20, height=20)
             # frame6 = tk.Label(frame4, bg="azure", text=name2, padx=20, pady=4, bd=0, font=self.font, width=0)
@@ -529,7 +572,7 @@ class App:
             # frame5.pack_propagate(False)
             img = ImageTk.PhotoImage(image=self.name_to_pic[name2])
             frame4.img = img
-            frame6.create_image(0, 0, anchor=NW, image=img)
+            frame6.create_image(0, 0, anchor=tk.NW, image=img)
 
     def add_comp_to_screen(self, comp_key, frames, champs, items):
         comp = self.s.comps[comp_key]
@@ -578,47 +621,7 @@ class App:
         #     print(part1, part2)
 
 
-
-def same_length(top5):
-    print("score key  cs   ss   es  s ci cp ei ep si")
-    for top in top5:
-        scr = "{:2.3f}".format(top[0])
-        key = "{:2}".format(top[1])
-        a = "{:2.2f}".format(top[2])
-        b = "{:2.2f}".format(top[3])
-        c = "{:2.2f}".format(top[4])
-        s = "{:2}".format(top[5])
-        sa = "{:2}".format(top[6])
-        sb = "{:2}".format(top[7])
-        sc = "{:2}".format(top[8])
-        sd = "{:2}".format(top[9])
-        ss = "{:2}".format(top[10])
-        print(scr, key, a,b,c,s,sa,sb,sc,sd,ss)
-
-
 if __name__ == '__main__':
-    # import tkinter as tk
-    # import tkinter.messagebox as msg
-
-
-    # def show(event=None):  # handler
-    #     msg.showinfo('name', 'Your name is ' + inp.get())
-    #
-    #
-    # m = tk.Tk()
-    #
-    # prompt = tk.Label(m, text='Name: ')
-    # prompt.pack(fill='x', side='left')
-    #
-    # inp = tk.Entry(m)
-    # inp.bind('<Return>', show)  # binding the Return event with an handler
-    # inp.pack(fill='x', side='left')
-    #
-    # ok = tk.Button(m, text='GO', command=show)
-    # ok.pack(fill='x', side='left')
-
-    # m.mainloop()
-
     root = tk.Tk()
     app = App(root)
     root.mainloop()
