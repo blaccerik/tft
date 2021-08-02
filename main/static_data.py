@@ -105,12 +105,14 @@ class Static:
         self.item_to_id["runaanstempest"] = 26
         self.item_to_id["dvarapalastoneplate"] = 56
         self.item_to_id["moremoreellonimicon"] = 37
+        self.item_to_id["moremoreellonomicon"] = 37
         self.item_to_id["guardianarchangel"] = 15
         self.item_to_id["hellionemblem"] = 28
         self.item_to_id["locketoftargonprime"] = 35
         self.item_to_id["statikkfavor"] = 24
         self.item_to_id["fistoffairness"] = 49
         self.item_to_id["luminousdeathblade"] = 11
+        self.item_to_id["sunlightcape"] = 57
         # self.item_to_id[""] = 35
         # self.item_to_id[""] = 35
 

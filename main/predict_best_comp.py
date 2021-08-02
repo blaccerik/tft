@@ -229,11 +229,11 @@ class Predict:
             # start_size = self.find_size(start_count, my_champions)
             # extra_size = self.find_size(extra_count, my_champions)
 
-            score = self.find_score_for_comp(values, size, tier)
+            score, score1, score2 = self.find_score_for_comp(values, size, tier)
             # top5.append((round(score, 3), key))
             top5.append((round(score, 3), key, core_total, start_total, extra_total,
                          core_champs_size, start_champs_size, extra_champs_size, size,
-                         core_i, core_p, extra_i, extra_p, size_i))
+                         core_i, core_p, extra_i, extra_p, size_i, score1, score2))
             top5.sort(key=lambda x: x[0], reverse=True)
             if len(top5) > many:
                 del top5[many]
@@ -273,10 +273,10 @@ class Predict:
                  0.8 * extra_p / (extra_parts_size)
         # print(score1, score2)
         score = tier * (1.0 * score1 + 1.0 * score2 + 0.001)
-        return score
+        return score, score1, score2
 
     def same_length(self, top5):
-        print("score key   ct    st    et cs ss es ss ci cp ei ep")
+        print("score key   ct    st    et cs ss es ss ci cp ei ep is chamS itemS")
         for top in top5:
             scr = "{:2.3f}".format(top[0])
             key = "{:2}".format(top[1])
@@ -293,7 +293,10 @@ class Predict:
             sb = "{:2}".format(top[10])
             sc = "{:2}".format(top[11])
             sd = "{:2}".format(top[12])
-            print(scr, key, a,b,c,aa,bb,cc,ss,sa,sb,sc,sd)
+            si = "{:2}".format(top[13])
+            s1 = "{:2.3f}".format(top[14])
+            s2 = "{:2.3f}".format(top[15])
+            print(scr, key, a,b,c,aa,bb,cc,ss,sa,sb,sc,sd,si,s1,s2)
 
 
 if __name__ == '__main__':

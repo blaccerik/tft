@@ -26,7 +26,8 @@ class WebScraper:
         s = requests.Session()
         html = s.get(link).text
         parsed_html = BeautifulSoup(html, features="html.parser")
-        text = parsed_html.find("div", {"class": "m-1onxboh ex6nprs2"})
+        # text = parsed_html.find("div", {"class": "m-1onxboh ex6nprs2"})
+        text = parsed_html.find("div", {"class": "m-1onxboh"})
         final_list = []
         for row in text:
             found = row.find_all(['a'])
@@ -51,23 +52,28 @@ class WebScraper:
         for row in text[0]:
             found = row.find_all(['a'])[0]["href"]
             name = found[15:]
+            print(name)
             final.append(name)
         early = []
         for row in text[1]:
             found = row.find_all(['a'])[0]["href"]
             name = found[15:]
+            print(name)
             early.append(name)
         mid = []
         for row in text[2]:
             found = row.find_all(['a'])[0]["href"]
             name = found[15:]
+            print(name)
             mid.append(name)
         order = []
 
         # item order
-        text = parsed_html.find("div", {"class": "m-1o7d3sk e3an59i3"})  # .find_all('img', alt=True)
+        # text = parsed_html.find("div", {"class": "m-1o7d3sk e3an59i3"})  # .find_all('img', alt=True)
+        text = parsed_html.find("div", {"class": "m-1o7d3sk"})
         for row in text:
             item = row.find('img')["alt"]
+            print(item)
             order.append(item)
 
         # items and their champ
@@ -80,20 +86,23 @@ class WebScraper:
         for row in text:
             champ = row.find("div", {"class": "m-yk4g74 eqckakh2"}).text
             for i in row.find_all("p", {"class": "m-1ycn726 elh7uow4"}):
+                print(i.text, champ)
                 all_items.append((i.text, champ))
 
         text = parsed_html.find("div", {"class": "e1ez9x2v0 m-560ppy e83jq8m4"})
         options = []
-        print(text)
         if text is not None:
             text2 = text.find_all('img', alt=True)
             for row in text2:
                 name = row["alt"]
+                print(name)
                 options.append(name)
 
         name = parsed_html.find("h1", {"class": "m-1sdlayj euxbs4g3"}).text
+        print(name)
 
         letter = parsed_html.find("div", {"class": "enl0bsh6 m-1j9xggc e4kvc91"}).find('img')["alt"]
+        print(letter)
         # print(letter)
 
         # print(final, early, mid)
@@ -107,6 +116,7 @@ class WebScraper:
         dicta["all items"] = all_items
         dicta["options"] = options
         dicta["letter"] = letter
+        print(dicta)
         return dicta
 
     def tftactics(self, link):

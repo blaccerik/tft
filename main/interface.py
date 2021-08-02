@@ -20,8 +20,8 @@ class App:
         self.s.adjust_comps()
         self.p = Predict(self.s)
         print("load 2/3")
-        self.screen = Screen()
-        self.c = Control()
+        # self.screen = Screen()
+        # self.c = Control()
         print("load 3/3")
 
         self.id_to_champ = self.s.id_to_champ
@@ -75,7 +75,6 @@ class App:
             self.frame_dict_items[i - 1] = {}
 
         # buttons
-
         # frame3l = tk.Frame(self.root, width=40, height=52)
         # frame3l.grid(column=0, row=10)
         frame3 = tk.Frame(self.root, width=720, height=53, bg="pink")
