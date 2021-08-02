@@ -20,8 +20,8 @@ class App:
         self.s.adjust_comps()
         self.p = Predict(self.s)
         print("load 2/3")
-        # self.screen = Screen()
-        # self.c = Control()
+        self.c = Control()
+        self.screen = Screen(self.c)
         print("load 3/3")
 
         self.id_to_champ = self.s.id_to_champ
@@ -57,9 +57,15 @@ class App:
 
             frame = tk.Frame(self.root)
             frame.grid(column=0, row=i)
+            if i == 1:
+                text = "me"
+            else:
+                text = i - 1
+            label = tk.Label(frame, bg=test[(i + 1) % 2], text=text, width=2, padx=7, pady=12, bd=2, font=self.font)
+            label.grid(column=0, row=0)
 
-            frame1 = tk.Frame(frame, bg=test[i % 2], width=420, height=40)
-            frame1.grid(column=0, row=0)
+            frame1 = tk.Frame(frame, bg=test[i % 2], width=390, height=40)
+            frame1.grid(column=1, row=0)
             frame1.grid_propagate(False)
             frame1.bind("<Button-3>", self.click_on_champion_frame)
             self.frame_list_champions.append(frame1)
@@ -67,7 +73,7 @@ class App:
             self.frame_dict_champions[i - 1] = {}
 
             frame2 = tk.Frame(frame, bg=test[(i + 1) % 2], width=300, height=40)
-            frame2.grid(column=1, row=0)
+            frame2.grid(column=2, row=0)
             frame2.grid_propagate(False)
             frame2.bind("<Button-3>", self.click_on_item_frame)
             self.frame_list_items.append(frame2)
@@ -91,6 +97,9 @@ class App:
         self.inc_store = tk.IntVar()
         button3 = tk.Checkbutton(frame3, text="Inc store", variable=self.inc_store)
         button3.grid(column=1, row=0)
+        self.only_me = tk.IntVar()
+        button4 = tk.Checkbutton(frame3, text="Only me", variable=self.only_me)
+        button4.grid(column=2, row=0)
 
         self.my_level = 1
         self.my_level_text = tk.StringVar()
@@ -145,13 +154,22 @@ class App:
         delay = 1  # seconds
 
         time.sleep(delay)
-        me, champ_dict, item_list = self.screen.cather_data(store=self.inc_store.get())
-        if me:
+        # me, champ_dict, item_list = self.screen.main(store=self.inc_store.get())
+        full_dict = self.screen.main(store=self.inc_store.get(), only_me=self.only_me.get(), show=False)
+        for i in full_dict:
+            if i == "me":
+                champ_dict = full_dict["me"][0]
+                item_list = full_dict["me"][1]
+                number = 0
+            else:
+                champ_dict = full_dict[i][0]
+                item_list = full_dict[i][1]
+                number = i
             some = self.selected_champ
             for chap in champ_dict:
                 amount = champ_dict[chap]
                 self.selected_champ = chap
-                self.add_champ_frame(0, def_value=amount)
+                self.add_champ_frame(number, def_value=amount)
             self.selected_champ = some
 
             item_dict = {i: item_list.count(i) for i in item_list}
@@ -160,42 +178,40 @@ class App:
             for item in item_dict:
                 amount = item_dict[item]
                 self.selected_item = self.s.id_to_item[item]
-                self.add_item_frame(0, def_value=amount)
+                self.add_item_frame(number, def_value=amount)
             # print(self.s.id_to_item, some)
             self.selected_item = some
-        # # full_dict = self.screen.main(self.c)
-        # # print(full_dict)
-        # for row in full_dict:
-        #     comp = full_dict[row]
-        #     for i in comp:
-        #         nr = comp[i]
-        #         self.selected_champ = i
-        #         self.add_champ_frame(0, def_value=nr)
 
     def press_button2(self):
-        row = 0
-        champs = {}
-        # champs
-        for i in self.champion_dict[row]:
-            nr = self.champion_dict[row][i]
-            if i in self.s.champ_to_id:
+        my_row = 0
+        my_champs = {}
+        all_champs = {}
+        my_items = []
+        for row in self.champion_dict:
+            if row == my_row:
+                # champs
+                for i in self.champion_dict[row]:
+                    nr = self.champion_dict[row][i]
+                    if i in self.s.champ_to_id:
+                        id = self.s.champ_to_id[i]
+                        my_champs[id] = nr
+                # items
+                for i in self.item_dict[row]:
+                    nr = self.item_dict[row][i]
+                    for _ in range(nr):
+                        my_items.append(i)
+            for i in self.champion_dict[row]:
+                nr = self.champion_dict[row][i]
                 id = self.s.champ_to_id[i]
-                champs[id] = nr
-        items = []
-        # items
-        for i in self.item_dict[row]:
-            nr = self.item_dict[row][i]
-            for _ in range(nr):
-                items.append(i)
-        top3 = self.p.predict_main(champs,
-                                   champs,
-                                   items,
-                                   self.my_level,
-                                   many=3)
+                if id in all_champs:
+                    all_champs[id] += nr
+                else:
+                    all_champs[id] = nr
+        top3 = self.p.predict_main(my_champs, all_champs, my_items, self.my_level, many=3)
         for i in range(3):
             frames = self.frame_list_screen[i]
             key = top3[i][1]
-            self.add_comp_to_screen(key, frames, champs, items)
+            self.add_comp_to_screen(key, frames, my_champs, my_items)
             # break
         # for i in self.p.s.comps:
         #     print(i, self.p.s.comps[i]["name"])

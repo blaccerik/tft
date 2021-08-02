@@ -272,7 +272,7 @@ class Predict:
                  0.95 * core_p / (core_parts_size) + \
                  0.8 * extra_p / (extra_parts_size)
         # print(score1, score2)
-        score = tier * (1.0 * score1 + 1.0 * score2 + 0.001)
+        score = tier * (1.0 * score1 + 0.9 * score2 + 0.001)
         return score, score1, score2
 
     def same_length(self, top5):
