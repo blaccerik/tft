@@ -100,13 +100,18 @@ class Math:
                 # prob = 1
                 if a1 != 1:
                     a1 *= prob
+                else:
+                    a1 *= 0.5
+
+                if b1 != 1:
                     b1 *= prob
+                else:
+                    b1 *= 1
+
+                if c1 != 1:
                     c1 *= prob
-                elif b1 != 1:
-                    b1 *= prob
-                    c1 *= prob
-                elif c1 != 1:
-                    c1 *= prob
+                else:
+                    c1 *= 1.5
                 final_dict[i] = (a1, b1, c1)
                 # break
             # break

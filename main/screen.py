@@ -287,9 +287,9 @@ class Screen:
 
     def main(self, store=False, only_me=False, show=False):
 
-        my_number = None
-        my_champ_dict = None
-        my_items = None
+        my_number = 0
+        my_champ_dict = {}
+        my_items = []
 
         start_x = 1400
         start_y = 170
