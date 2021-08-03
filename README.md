@@ -43,7 +43,7 @@ numbers under the champion mean how many copies you have on your screen:
 3 aatrox => one lvl 2 aatrox  
 9 aatrox => one lvl 3 aatrox  
 * Buttons  
-![image](https://user-images.githubusercontent.com/73612140/128009542-5dd5ca22-5da0-41cf-a6e2-a24362db4c49.png)
+![image](https://user-images.githubusercontent.com/73612140/128009542-5dd5ca22-5da0-41cf-a6e2-a24362db4c49.png)  
 Get champs - takes a picture of the screen and finds all the champs/items and adds them to the queue  
 if you select "inc store" then it also adds champs from your store
 if you select "only me" then it takes picture of only your champions (need the be watching them), otherwise it goes through the player list one by one and takes pictures of them  all (enable if you dont have cuda, takes too long)  
