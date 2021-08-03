@@ -33,7 +33,7 @@ How to use:
 ![image](https://user-images.githubusercontent.com/73612140/127325012-05fe3b49-8bf2-417e-ab3a-0d97b904ab85.png)  
 type champion/item name into the white box and press enter/"?" to select the champion/item  
 * Queue:  
-![image](https://user-images.githubusercontent.com/73612140/128009503-ec0fa013-a83a-4631-b17f-70902447569b.png)
+![image](https://user-images.githubusercontent.com/73612140/128009503-ec0fa013-a83a-4631-b17f-70902447569b.png)  
 This shows current champions/items for players
 if you have selected your champion/item then press right click to add it to the queue  
 if you want to increment champion/item number then press right click on it and left click do decrease it  
